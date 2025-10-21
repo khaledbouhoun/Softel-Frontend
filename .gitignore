@@ -1,0 +1,69 @@
+# ============================================
+# Flutter Project .gitignore
+# Safe for public GitHub sharing
+# Keeps only important source files
+# ============================================
+
+# Flutter & Dart
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Build outputs
+/build/
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+**/ios/Flutter/.last_build_id
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/ephemeral/
+**/ios/Pods/
+**/ios/Podfile.lock
+
+# Signing & secrets
+*.jks
+*.keystore
+key.properties
+.env
+.env.*
+google-services.json
+GoogleService-Info.plist
+
+# Logs & temporary files
+*.log
+*.tmp
+*.swp
+
+# IDE / Editor settings
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.DS_Store
+Thumbs.db
+
+# Coverage & analysis
+coverage/
+analyzer-output.txt
+
+# Web build
+web/.dart_tool/
+web/build/
+
+# Node or JS tools (if used)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Symbolication & obfuscation
+app.*.symbols
+app.*.map.json
+
+# Miscellaneous build folders
+.migrate/
+.migrate_working_dir/

@@ -1,0 +1,89 @@
+import 'package:softel/controller/familles/famillescontroller.dart';
+import 'package:softel/core/constant/color.dart';
+import 'package:softel/core/constant/imageasset.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
+import 'package:softel/view/widget/home/familles_grid.dart';
+import 'package:softel/view/widget/home/top_bar.dart';
+
+class FamillesPage extends StatelessWidget {
+  
+  FamillesPage({super.key});
+
+  int selectedfamille = 0;
+  String searchText = '';
+
+  @override
+  Widget build(BuildContext context) {
+    Get.put(FamillesController());
+    return GetBuilder<FamillesController>(
+      builder: (controller) {
+        return Scaffold(
+          backgroundColor: AppColor.background,
+          body: SafeArea(
+            child: ListView(
+              children: [
+                TopBar(logoUrl: controller.logoUrl,),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  height: 50,
+                  child: TextField(
+                    cursorColor: AppColor.primaryColor,
+                    decoration: InputDecoration(
+                      fillColor: AppColor.background,
+                      filled: true,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide(color: AppColor.primaryColor),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide(color: AppColor.primaryColor),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide(color: AppColor.primaryColor),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide(color: AppColor.primaryColor),
+                      ),
+                      disabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide(color: AppColor.primaryColor),
+                      ),
+                      hintText: 'serch_famille'.tr,
+                      hintStyle: TextStyle(color: AppColor.grey),
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: SvgPicture.asset(AppSvg.search, color: AppColor.primaryColor),
+                      ),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          controller.searchController.clear();
+                          controller.searchProducts("");
+                        },
+                        icon: Icon(Icons.close, color: AppColor.primaryColor),
+                      ),
+                    ),
+                    onTapOutside: (event) {
+                      FocusScope.of(context).unfocus();
+                    },
+                    onChanged: (value) {
+                      controller.searchProducts(value);
+                    },
+                    style:  TextStyle(color: AppColor.primaryColor, fontWeight: FontWeight.w600, fontSize: 16, letterSpacing: 0.2),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: FamillesGrid()),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
