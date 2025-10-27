@@ -152,6 +152,21 @@ class Settings extends StatelessWidget {
                         ),
                       ]),
 
+                      const SizedBox(height: 25),
+
+                      // Account Section
+                      _buildSectionTitle('account'.tr),
+                      const SizedBox(height: 10),
+                      _buildSettingsCard([
+                        _buildSettingsItem(
+                          icon: AppSvg.logout,
+                          title: 'logout'.tr,
+                          subtitle: 'logout_text'.tr,
+                          onTap: () => controller.logout(context),
+                          isDestructive: true,
+                        ),
+                      ]),
+
                       const SizedBox(height: 40),
                     ],
                   ),

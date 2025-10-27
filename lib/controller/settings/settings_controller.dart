@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:softel/controller/auth/login_controller.dart';
 import 'package:softel/core/class/crud.dart';
 import 'package:softel/core/constant/routesstr.dart';
 import 'package:softel/core/services/services.dart';
@@ -18,6 +20,7 @@ class SettingsController extends GetxController {
   String instagram = '';
   String tiktok = '';
   String whatsapp = '';
+  final GoogleSignIn signIn = GoogleSignIn();
 
   @override
   void onInit() {
@@ -29,6 +32,19 @@ class SettingsController extends GetxController {
     tiktok = myServices.sharedPreferences.getString("tiktok") ?? '';
     whatsapp = myServices.sharedPreferences.getString("whatsapp") ?? '';
     super.onInit();
+  }
+
+  Future<void> signOutGoogle() async {
+    try {
+      await signIn.disconnect();
+    } catch (e) {
+      // Ignore sign-out errors
+    }
+    myServices.sharedPreferences.remove('google_id');
+    myServices.sharedPreferences.remove('CliGoogleId');
+    myServices.sharedPreferences.remove('email');
+    myServices.sharedPreferences.remove('name');
+    myServices.sharedPreferences.remove('photoUrl');
   }
 
   Future<void> logout(BuildContext context) async {
@@ -64,7 +80,7 @@ class SettingsController extends GetxController {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
+                    onPressed: () => Get.back(),
                     child: Text(
                       "Cancel",
                       style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w600),
@@ -81,7 +97,10 @@ class SettingsController extends GetxController {
                       "Logout",
                       style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                     ),
-                    onPressed: () => Navigator.of(context).pop(true),
+                    onPressed: () async {
+                      await signOutGoogle();
+                      await Get.offAllNamed("/");
+                    },
                   ),
                 ],
               ),
@@ -116,7 +135,7 @@ class SettingsController extends GetxController {
       String? languageSelected = myServices.sharedPreferences.getString("language_selected");
       // Clear all preferences
       myServices.sharedPreferences.clear();
-     
+
       if (languageSelected == "true") {
         myServices.sharedPreferences.setString("language_selected", "true");
       }
@@ -127,6 +146,7 @@ class SettingsController extends GetxController {
       Navigator.of(context, rootNavigator: true).pop(); // Close loading dialog
       if (response.statusCode == 200) {
         dialogfun.showSnackSuccess("success".tr, "successfully_logged_out".tr);
+        Get.put(LoginController());
         Get.offAllNamed(AppRoute.login);
       } else {
         dialogfun.showSnackError("error".tr, "something_went_wrong".tr);

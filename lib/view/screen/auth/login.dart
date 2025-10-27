@@ -36,15 +36,15 @@ class Login extends StatelessWidget {
                       children: [
                         // ✅ Company Logo
                         Hero(
-                          tag: controller.company!.clsNo!,
+                          tag: controller.company?.clsNo?.toString() ?? 'logo',
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(16),
                             child: CachedNetworkImage(
-                              imageUrl: controller.company!.clsImg ?? '',
+                              imageUrl: controller.company?.clsImg ?? '',
                               fit: BoxFit.contain,
-                              placeholder: (context, url) => Center(child: CircularProgressIndicator(color: controller.company!.clsClr1)),
+                              placeholder: (context, url) => Center(child: CircularProgressIndicator(color: controller.company?.clsClr1)),
                               errorWidget: (context, url, error) =>
-                                  SvgPicture.asset(AppSvg.galleryremove, color: controller.company!.clsClr1, width: 60),
+                                  SvgPicture.asset(AppSvg.galleryremove, color: controller.company?.clsClr1, width: 60),
                             ),
                           ),
                         ),

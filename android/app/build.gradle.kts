@@ -35,6 +35,8 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
+        manifestPlaceholders["REVERSED_CLIENT_ID"] = "com.googleusercontent.apps.198997354824-m74pe9btumaqvi5lec9dqiglg6tijus7"
     }
 
    signingConfigs {

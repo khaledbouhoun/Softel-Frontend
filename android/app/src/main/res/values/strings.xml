@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Replace YOUR_SERVER_CLIENT_ID with your actual server client ID from Google Cloud Console -->
+    <string name="server_client_id">YOUR_ACTUAL_CLIENT_ID_HERE</string>
+</resources>

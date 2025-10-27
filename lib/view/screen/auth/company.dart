@@ -41,8 +41,8 @@ class CompanyPage extends StatelessWidget {
               itemBuilder: (context, index) {
                 return CompanyWidget(
                   company: controller.companies[index],
-                  ontap: () {
-                    controller.selectCompany(controller.companies[index]);
+                  ontap: () async {
+                    await controller.selectCompany(controller.companies[index]);
                   },
                 );
               },
@@ -52,4 +52,4 @@ class CompanyPage extends StatelessWidget {
       ),
     );
   }
-}
+}      

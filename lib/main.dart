@@ -28,7 +28,6 @@ class MyApp extends StatelessWidget {
       getPages: routes,
 
       // home: HomeScreen(),
-
     );
   }
 }

@@ -39,7 +39,7 @@ class SignUpController extends GetxController {
 
   @override
   void onInit() {
-    idGoogle = Get.arguments['idGoogle'] ?? '';
+    idGoogle = Get.arguments['googleId'] ?? '';
     company = Get.arguments['company'] ?? Company();
     nom = Get.arguments['nom'] != null ? TextEditingController(text: Get.arguments['nom']) : TextEditingController();
     email = Get.arguments['email'] ?? '';

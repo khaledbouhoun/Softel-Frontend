@@ -31,7 +31,8 @@ class CompanyController extends GetxController {
     }
   }
 
-  void selectCompany(Company company) {
-    Get.toNamed(AppRoute.login, arguments: {'company': company});
+  Future<void> selectCompany(Company company) async {
+    selectedCompany = company;
+    await Get.toNamed(AppRoute.login);
   }
 }
