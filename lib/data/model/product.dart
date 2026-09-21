@@ -1,3 +1,5 @@
+import 'package:softel/data/model/artimages.dart';
+
 class Product {
   String? artNo;
   String? artNom;
@@ -9,7 +11,7 @@ class Product {
   double? artUntCol;
   double? artPrix;
   double? artQte;
-  List<ArtImages>? artImages;
+  List<Artimages>? artImages;
 
   Product({
     this.artNo,
@@ -37,9 +39,9 @@ class Product {
     artPrix = (json['ArtPrix'] != null) ? (json['ArtPrix'] as num).toDouble() : 0.0;
     artQte = (json['ArtQte'] != null) ? (json['ArtQte'] as num).toDouble() : 0.0;
     if (json['ArtImages'] != null) {
-      artImages = <ArtImages>[];
+      artImages = <Artimages>[];
       json['ArtImages'].forEach((v) {
-        artImages!.add(ArtImages.fromJson(v));
+        artImages!.add(Artimages.fromJson(v));
       });
     }
   }
@@ -59,28 +61,6 @@ class Product {
     if (artImages != null) {
       data['ArtImages'] = artImages!.map((v) => v.toJson()).toList();
     }
-    return data;
-  }
-}
-
-class ArtImages {
-  String? imgCls;
-  String? imgArt;
-  String? imgNom;
-
-  ArtImages({this.imgCls, this.imgArt, this.imgNom});
-
-  ArtImages.fromJson(Map<String, dynamic> json) {
-    imgCls = json['ImgCls'];
-    imgArt = json['ImgArt'];
-    imgNom = json['ImgNom'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['ImgCls'] = imgCls;
-    data['ImgArt'] = imgArt;
-    data['ImgNom'] = imgNom;
     return data;
   }
 }

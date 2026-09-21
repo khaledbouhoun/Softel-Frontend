@@ -1,3 +1,5 @@
+import 'package:softel/data/model/artimages.dart';
+
 class CartModel {
   int? cddID;
   String? cls;
@@ -13,6 +15,7 @@ class CartModel {
   double? cddQte;
   double? cddPrix;
   double? cddMontant;
+  List<Artimages>? cddImages;
 
   CartModel({
     this.cddID,
@@ -29,6 +32,7 @@ class CartModel {
     this.cddQte,
     this.cddPrix,
     this.cddMontant,
+    this.cddImages,
   });
 
   CartModel.fromJson(Map<String, dynamic> json) {
@@ -46,6 +50,12 @@ class CartModel {
     cddQte = (json['CddQte'] != null) ? (json['CddQte'] as num).toDouble() : 0.0;
     cddPrix = (json['CddPrix'] != null) ? (json['CddPrix'] as num).toDouble() : 0.0;
     cddMontant = (json['CddMontant'] != null) ? (json['CddMontant'] as num).toDouble() : 0.0;
+    if (json['CddImages'] != null) {
+      cddImages = <Artimages>[];
+      json['CddImages'].forEach((v) {
+        cddImages!.add(Artimages.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -64,6 +74,9 @@ class CartModel {
     data['CddQte'] = cddQte;
     data['CddPrix'] = cddPrix;
     data['CddMontant'] = cddMontant;
+    if (cddImages != null) {
+      data['CddImages'] = cddImages;
+    }
     return data;
   }
 }

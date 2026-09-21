@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:softel/core/class/crud.dart';
 import 'package:softel/core/constant/routesstr.dart';
 import 'package:softel/core/services/services.dart';
-import 'package:get/get.dart';
 import 'package:softel/data/model/familles.dart';
 import 'package:softel/linkapi.dart';
 import 'package:softel/view/widget/dialog.dart';

@@ -105,7 +105,7 @@ class SignUpController extends GetxController {
           errorMsg += '${value.join(', ')}\n';
         });
         dialogfun.showSnackError("error_failed".tr, errorMsg);
-      } else if (response.statusCode == 200) {
+      } else if (response.statusCode == 201) {
         isLoadingbutton.value = false;
         dialogfun.showSuccessDialog('success_signup'.tr, "${'success_signup_text1'.tr} ${company.clsNom} ${'success_signup_text2'.tr}", () {
           Get.back();

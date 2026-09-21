@@ -1,4 +1,4 @@
-package com.example.softel
+package com.softel.b2bapp
 
 import io.flutter.embedding.android.FlutterActivity
 

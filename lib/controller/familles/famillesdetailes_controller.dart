@@ -20,6 +20,7 @@ class FamillesdetailesController extends GetxController {
   List<Product> filteredProducts = [];
   int offset = 0;
   bool isoffsetloding = false;
+  RxBool isloadingProducts = false.obs;
   RxBool endofproducts = false.obs;
   String? message = "No more products";
   final ScrollController scrollController = ScrollController();
@@ -45,24 +46,30 @@ class FamillesdetailesController extends GetxController {
   }
 
   Future<void> fetch({bool isoffsetloding = false}) async {
-    var response = await crud.post(AppLink.parfamilles, {
-      'offset': products.length,
-      'limit': 15,
-      'ArtFam': famille?.famNo,
-      'ArtSFam': souFamille?.souNo,
-    });
-    if (response.statusCode == 201) {
-      products.addAll((response.body as List).map((item) => Product.fromJson(item)).toList());
-      filteredProducts = List.from(products);
-    } else if (response.statusCode == 404 && products.isNotEmpty) {
-      endofproducts.value = true;
-    } else if (response.statusCode == 404 && products.isEmpty) {
-      products = [];
-    } else {
-      products = [];
-      dialogfun.showSnackError("Error", "Failed to load products");
+    try {
+      isloadingProducts.value = true;
+
+      var response = await crud.get(
+        "${AppLink.parfamilles}?offset=${products.length}&limit=15&ArtFam=${famille?.famNo}&ArtSFam=${souFamille?.souNo}",
+      );
+      if (response.statusCode == 200) {
+        products.addAll((response.body as List).map((item) => Product.fromJson(item)).toList());
+        filteredProducts = List.from(products);
+      } else if (response.statusCode == 404 && products.isNotEmpty) {
+        endofproducts.value = true;
+      } else if (response.statusCode == 404 && products.isEmpty) {
+        products = [];
+      } else {
+        products = [];
+        dialogfun.showSnackError("Error", "Failed to load products");
+      }
+      update();
+    } catch (e) {
+      print(e);
+    } finally {
+      isloadingProducts.value = false;
+      update();
     }
-    update();
   }
 
   Future<void> goToPageProductDetails(Product product) async {

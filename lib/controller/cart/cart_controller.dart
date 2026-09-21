@@ -129,7 +129,9 @@ class CartController extends GetxController {
       var response = await crud.get(AppLink.confirmCommande);
       if (response.statusCode == 200) {
         isloadingConfirmButton.value = false;
-        await Get.find<HomeController>().fetchAll();
+        if (Get.isRegistered<HomeController>()) {
+          await Get.find<HomeController>().fetchProducts(reset: true);
+        }
         Get.back();
         dialogfun.showSnackSuccess("success".tr, "item_confirmed_successfully".tr);
       } else {
@@ -151,6 +153,7 @@ class CartController extends GetxController {
       artPrix: cart.cddPrix,
       artUntCol: cart.cddUntCol,
       artQte: cart.cddQte,
+      artImages: cart.cddImages,
     );
 
     final bool? result = await Get.to<bool?>(() => ProductDetails(), arguments: {"product": product, "fromcart": true});

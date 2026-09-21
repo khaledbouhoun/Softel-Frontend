@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/services.dart';
 import 'package:softel/controller/cart/cart_controller.dart';
 import 'package:softel/controller/product/productdetails_controller.dart';
 import 'package:softel/core/constant/color.dart';
@@ -138,14 +139,14 @@ class ProductDetails extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 8, offset: const Offset(0, 4))],
+                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 8, offset: const Offset(0, 4))],
                     ),
                     child: ToggleButtons(
                       onPressed: (index) => controller.toggleUnitType(index),
                       isSelected: (controller.product.artColisageNom ?? '').isNotEmpty
                           ? [controller.isUnitSelected, !controller.isUnitSelected]
                           : [controller.isUnitSelected],
-                      fillColor: AppColor.primaryColor.withOpacity(0.15),
+                      fillColor: AppColor.primaryColor.withValues(alpha: 0.15),
                       selectedColor: AppColor.primaryColor,
                       color: Colors.grey.shade600,
                       borderColor: Colors.transparent,
@@ -205,6 +206,7 @@ class ProductDetails extends StatelessWidget {
                                     style: TextStyle(color: AppColor.primaryColor, fontSize: 20, fontWeight: FontWeight.bold),
                                     keyboardType: TextInputType.number,
                                     textAlign: TextAlign.center,
+                                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                                     decoration: InputDecoration(
                                       enabledBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(12),
@@ -256,7 +258,7 @@ class ProductDetails extends StatelessWidget {
                             },
                             child: Obx(
                               () => Text(
-                                controller.qtyinput.value.toString(),
+                                controller.qtyinput.value.toStringAsFixed(2),
                                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColor.primaryColor),
                               ),
                             ),
@@ -269,7 +271,7 @@ class ProductDetails extends StatelessWidget {
                       ),
                       Obx(
                         () => Text(
-                          '${controller.totalprice.value} ${'da'.tr}',
+                          '${controller.totalprice.value.toStringAsFixed(2)} ${'da'.tr}',
                           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
                         ),
                       ),
@@ -343,7 +345,9 @@ class ProductDetails extends StatelessWidget {
               child: Obx(
                 () => ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: controller.totalprice.value == 0.0
+                    backgroundColor: controller.isloading.value
+                        ? Colors.grey.shade400
+                        : controller.totalprice.value == 0.0
                         ? controller.product.artQte == 0
                               ? Colors.grey.shade400
                               : const Color.fromARGB(255, 185, 12, 0)
@@ -352,6 +356,7 @@ class ProductDetails extends StatelessWidget {
                     elevation: 8,
                   ),
                   onPressed: () {
+                    if (controller.isloading.value) return;
                     if (controller.totalprice.value > 0.0) {
                       controller.storeCommand();
                     } else {
@@ -363,7 +368,17 @@ class ProductDetails extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     child: controller.isloading.value
-                        ? CircularProgressIndicator(color: Colors.white)
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            spacing: 20,
+                            children: [
+                              CircularProgressIndicator(color: Colors.white),
+                              Text(
+                                'processing'.tr,
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                              ),
+                            ],
+                          )
                         : controller.totalprice.value == 0.0
                         ? controller.product.artQte == 0
                               ? Row(

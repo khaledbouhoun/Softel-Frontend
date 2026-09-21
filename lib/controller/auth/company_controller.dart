@@ -6,7 +6,6 @@ import 'package:softel/linkapi.dart';
 import 'package:softel/view/widget/dialog.dart';
 
 class CompanyController extends GetxController {
-  // List of companies (replace with your actual company model if needed)
   Crud crud = Crud();
   Dialogfun dialogfun = Dialogfun();
   final List<Company> companies = [];
@@ -23,8 +22,7 @@ class CompanyController extends GetxController {
   void fetchCompanies() async {
     var response = await crud.get(AppLink.company);
     if (response.statusCode == 200) {
-      print(response.body);
-      companies.addAll((response.body as List).map((item) => Company.fromJson(item)).toList());
+      companies.assignAll((response.body as List).map((item) => Company.fromJson(item)).toList());
       update();
     } else {
       dialogfun.showSnackError("Error", "Failed to load companies");

@@ -24,7 +24,7 @@ class SettingsController extends GetxController {
 
   @override
   void onInit() {
-    nom = myServices.sharedPreferences.getString("nom") ?? '';
+    nom = myServices.sharedPreferences.getString("name") ?? '';
     photoUrl = myServices.sharedPreferences.getString("photoUrl") ?? '';
     companyNom = myServices.sharedPreferences.getString("companynom") ?? '';
     facebook = myServices.sharedPreferences.getString("facebook") ?? '';
@@ -61,7 +61,7 @@ class SettingsController extends GetxController {
             children: [
               CircleAvatar(
                 radius: 32,
-                backgroundColor: Colors.red.withOpacity(0.1),
+                backgroundColor: Colors.red.withValues(alpha: 0.1),
                 child: Icon(Icons.logout, color: Colors.red, size: 36),
               ),
               const SizedBox(height: 18),

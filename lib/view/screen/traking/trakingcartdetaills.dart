@@ -16,56 +16,59 @@ class Trakingcartdetaills extends StatelessWidget {
     // Only initialize ONCE, not both here and in GetBuilder
     // Get.put(CartController()); // <-- Remove this if you use 'init' in GetBuilder
 
-    return Scaffold(
-      backgroundColor: AppColor.background,
-      appBar: AppBar(
+    return SafeArea(
+      top: false,
+      child: Scaffold(
         backgroundColor: AppColor.background,
-        elevation: 0,
-        title: Text(
-          "my_cart".tr,
-          style: TextStyle(color: AppColor.primaryColor, fontSize: 20, fontWeight: FontWeight.bold),
+        appBar: AppBar(
+          backgroundColor: AppColor.background,
+          elevation: 0,
+          title: Text(
+            "my_cart".tr,
+            style: TextStyle(color: AppColor.primaryColor, fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          centerTitle: true,
+          scrolledUnderElevation: 0,
+          leading: Backwidget(),
+          toolbarHeight: 80,
         ),
-        centerTitle: true,
-        scrolledUnderElevation: 0,
-        leading: Backwidget(),
-        toolbarHeight: 80,
-      ),
-      bottomNavigationBar: GetBuilder<TrakingcartdetaillsController>(
-        builder: (controller) => BottomNavgationBarCartTraking(totalprice: controller.totalprice()),
-      ),
-      body: GetBuilder<TrakingcartdetaillsController>(
-        init: TrakingcartdetaillsController(),
-        builder: (controller) => controller.isloading.value
-            ? Center(child: Loadingwidget(width: Get.width / 2))
-            : controller.data.isNotEmpty
-            ? SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
+        bottomNavigationBar: GetBuilder<TrakingcartdetaillsController>(
+          builder: (controller) => BottomNavgationBarCartTraking(totalprice: controller.totalprice()),
+        ),
+        body: GetBuilder<TrakingcartdetaillsController>(
+          init: TrakingcartdetaillsController(),
+          builder: (controller) => controller.isloading.value
+              ? Center(child: Loadingwidget(width: Get.width / 2))
+              : controller.data.isNotEmpty
+              ? SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        ...List.generate(
+                          controller.data.length,
+                          (index) => GlassmorphismCartItemTraking(cart: controller.data[index], imagename: ''),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : Center(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      ...List.generate(
-                        controller.data.length,
-                        (index) => GlassmorphismCartItemTraking(cart: controller.data[index], imagename: ''),
+                      SizedBox(height: 20),
+                      Text(
+                        'cart_is_empty'.tr,
+                        style: TextStyle(color: AppColor.primaryColor, fontSize: 18, fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),
                 ),
-              )
-            : Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(height: 20),
-                    Text(
-                      'cart_is_empty'.tr,
-                      style: TextStyle(color: AppColor.primaryColor, fontSize: 18, fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-              ),
+        ),
       ),
     );
   }

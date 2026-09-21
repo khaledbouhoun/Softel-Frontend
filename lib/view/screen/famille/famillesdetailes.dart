@@ -85,6 +85,7 @@ class Famillesdetailes extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 ProductGrid(
+                  isloadingProducts: controller.isloadingProducts,
                   physics: const NeverScrollableScrollPhysics(),
                   products: controller.filteredProducts,
                   onTap: (i) async {

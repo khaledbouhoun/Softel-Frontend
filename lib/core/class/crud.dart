@@ -9,100 +9,73 @@ class Crud {
   MyServices myServices = Get.find<MyServices>();
   final storage = FlutterSecureStorage();
 
-  /// POST request for Laravel API (application/json)
+  Future<String?> getToken() async {
+    return await storage.read(key: "token");
+  }
+
+  /// POST
   Future<Response> post(String linkurl, Map<String, dynamic> data) async {
-    // String token = myServices.sharedPreferences.getString("token") ?? "ydKqvkG5pVzUzptKYZ13WyWBqvBP3DHzTIUYVzwXc7eeb61a";
-    String? token = await storage.read(key: "token");
+    String? token = await getToken();
 
     if (await checkInternet()) {
       try {
         var response = await http.post(
           Uri.parse(linkurl),
-          headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer $token'},
+          headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Auth-Token': token ?? ''},
           body: jsonEncode(data),
         );
-        print("Response status code: ${response.statusCode}");
-        print("Response body: ${response.body}");
-        print("Request URL: $linkurl");
+
+        print("[POST]Request URL: $linkurl");
+        print("[POST]Request body: $data");
+        print("[POST]Response: ${response.body}");
 
         return Response(statusCode: response.statusCode, body: jsonDecode(response.body));
       } catch (e) {
-        print("Error in POST request: $e");
-        throw Exception('Server exception: $e');
+        throw Exception('[POST] Server exception: $e');
       }
     } else {
-      print("No internet connection");
-      throw Exception('No internet connection');
+      throw Exception('[POST] No internet connection');
     }
   }
 
-  /// GET request for Laravel API (application/json)
+  /// GET
   Future<Response> get(String linkurl) async {
-    // String token = myServices.sharedPreferences.getString("token") ?? "ydKqvkG5pVzUzptKYZ13WyWBqvBP3DHzTIUYVzwXc7eeb61a";
-    String? token = await storage.read(key: "token");
+    String? token = await getToken();
 
     if (await checkInternet()) {
       try {
-        // Convert data map to query parameters
-        var response = await http.get(
-          Uri.parse(linkurl),
-          headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer $token'},
-        );
-        print("Response status code: ${response.statusCode}");
-        print("Response body: ${response.body}");
-        print("Request URL: $linkurl");
+        var response = await http.get(Uri.parse(linkurl), headers: {'Accept': 'application/json', 'X-Auth-Token': token ?? ''});
+
+        print("[GET]Request URL: $linkurl");
+        print("[GET]Response: ${response.body}");
 
         return Response(statusCode: response.statusCode, body: jsonDecode(response.body));
       } catch (e) {
-        print("Error in POST request: $e");
-        throw Exception('Server exception: $e');
+        throw Exception('[GET] Server exception: $e');
       }
     } else {
-      print("No internet connection");
-      throw Exception('No internet connection');
+      throw Exception('[GET] No internet connection');
     }
   }
 
+  /// DELETE
   Future<Response> delete(String linkurl, Map<String, dynamic> data) async {
-    String? token = await storage.read(key: "token");
+    String? token = await getToken();
 
     if (await checkInternet()) {
       try {
         var response = await http.delete(
           Uri.parse(linkurl),
-          headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer $token'},
+          headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Auth-Token': token ?? ''},
           body: jsonEncode(data),
         );
-        print("Response status code: ${response.statusCode}");
-        print("Response body: ${response.body}");
-        print("Request URL: $linkurl");
 
         return Response(statusCode: response.statusCode, body: jsonDecode(response.body));
       } catch (e) {
-        print("Error in DELETE request: $e");
-        throw Exception('Server exception: $e');
+        throw Exception('[DELETE] Server exception: $e');
       }
     } else {
-      print("No internet connection");
-      throw Exception('No internet connection');
-    }
-  }
-
-  Future<Map<String, dynamic>> postDatasimple(String linkurl, Map data) async {
-    if (await checkInternet()) {
-      try {
-        var response = await http.post(Uri.parse(linkurl), body: data);
-        if (response.statusCode == 200 || response.statusCode == 201) {
-          Map responsebody = jsonDecode(response.body);
-          return Map<String, dynamic>.from(responsebody);
-        } else {
-          throw Exception('Failed to load data');
-        }
-      } catch (e) {
-        throw Exception('Server exception: $e');
-      }
-    } else {
-      throw Exception('No internet connection');
+      throw Exception('[DELETE] No internet connection');
     }
   }
 }

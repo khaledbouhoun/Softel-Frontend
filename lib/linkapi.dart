@@ -1,16 +1,21 @@
 class AppLink {
-  // static const server = "http://10.104.195.220:8000/api";
-  // static const server = "http://192.168.1.74:8000/api";
-  static const server = "https://merceriefz.com/softel_api/api";
   static const String tset = "$server/test";
-  static const String familleImage = "$server/images/familles/";
-  static const String souFamilleImage = "$server/images/soufamilles/";
-  static const String articleImage = "$server/images/articles/";
-  static const String bannerImage = "$server/images/banner/";
+  // static const server = "http://10.104.195.220:8000/api";
+  // static const domine = "http://10.0.2.2:8000";
+  static const domine = "https://b2b.softel.dz";
+
+  // Images URLs
+  static const images = "$domine/images";
+  static const articlesimages = "$images/articles/";
+  static const famillesimages = "$images/familles/";
+  static const bannersimages = "$images/banners/";
+  static const softelClientImages = "$images/clients_softel/";
+
+  //  ============================================= Server =====================================================
+  static const server = "$domine/api";
 
   //========================== Auth ============================
   static const String company = "$server/company";
-
   static const String login = "$server/login";
   static const String signUp = "$server/signup";
   static const String logout = "$server/logout";

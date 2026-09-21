@@ -3,71 +3,97 @@ import java.io.FileInputStream
 
 plugins {
     id("com.android.application")
+    id("com.google.gms.google-services")
     id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-// Load keystore properties
+/* ================================
+   KEYSTORE (RELEASE SIGNING)
+   ================================ */
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
+
 if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+    keystorePropertiesFile.inputStream().use { input ->
+        keystoreProperties.load(input)
+    }
 }
 
 android {
-    namespace = "com.example.softel"
+    namespace = "com.softel.b2bapp"   // ✅ FIXED (IMPORTANT)
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "27.0.12077973"
+    ndkVersion = "28.2.13676358"
 
+    /* ================================
+       JAVA / KOTLIN CONFIG
+       ================================ */
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+   kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
     }
+}
 
+    /* ================================
+       DEFAULT CONFIG
+       ================================ */
     defaultConfig {
-        applicationId = "com.example.softel"
+        applicationId = "com.softel.b2bapp"  // ✅ FIXED
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        
-        manifestPlaceholders["REVERSED_CLIENT_ID"] = "com.googleusercontent.apps.198997354824-m74pe9btumaqvi5lec9dqiglg6tijus7"
+
+        // Google Sign-In / Firebase OAuth
+        manifestPlaceholders["REVERSED_CLIENT_ID"] =
+            "com.googleusercontent.apps.198997354824-m74pe9btumaqvi5lec9dqiglg6tijus7"
     }
 
-   signingConfigs {
-        getByName("debug") {
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
-            storeFile = file(keystoreProperties["storeFile"] as String)
-            storePassword = keystoreProperties["storePassword"] as String
-        }
+    /* ================================
+       SIGNING CONFIG
+       ================================ */
+    signingConfigs {
         create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
-            storeFile = file(keystoreProperties["storeFile"] as String)
-            storePassword = keystoreProperties["storePassword"] as String
+            keyAlias = keystoreProperties.getProperty("keyAlias")
+            keyPassword = keystoreProperties.getProperty("keyPassword")
+
+            val storeFilePath = keystoreProperties.getProperty("storeFile")
+            storeFile = storeFilePath?.let { file(it) }
+
+            storePassword = keystoreProperties.getProperty("storePassword")
         }
     }
 
+    /* ================================
+       BUILD TYPES
+       ================================ */
     buildTypes {
         getByName("debug") {
             signingConfig = signingConfigs.getByName("debug")
         }
+
         getByName("release") {
             signingConfig = signingConfigs.getByName("release")
+
             isMinifyEnabled = false
             isShrinkResources = false
-            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
-
 }
 
+/* ================================
+   FLUTTER SOURCE
+   ================================ */
 flutter {
     source = "../.."
 }

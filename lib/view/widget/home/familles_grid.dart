@@ -1,10 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:softel/controller/familles/famillescontroller.dart';
 import 'package:softel/core/constant/color.dart';
-import 'package:softel/core/constant/imageasset.dart';
-import 'package:softel/linkapi.dart';
 import 'package:flutter/material.dart';
 
 class FamillesGrid extends StatelessWidget {
@@ -13,7 +10,6 @@ class FamillesGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<FamillesController>(
-      init: FamillesController(),
       builder: (controller) {
         return GridView.builder(
           shrinkWrap: true,
@@ -36,9 +32,13 @@ class FamillesGrid extends StatelessWidget {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(22),
                   boxShadow: [
-                    BoxShadow(color: const Color.fromARGB(255, 0, 88, 129).withOpacity(0.10), blurRadius: 18, offset: const Offset(0, 8)),
+                    BoxShadow(
+                      color: const Color.fromARGB(255, 0, 88, 129).withValues(alpha: 0.10),
+                      blurRadius: 18,
+                      offset: const Offset(0, 8),
+                    ),
                   ],
-                  border: Border.all(color: AppColor.primaryColor.withOpacity(0.13), width: 1.2),
+                  border: Border.all(color: AppColor.primaryColor.withValues(alpha: 0.13), width: 1.2),
                 ),
                 child: Row(
                   children: [
@@ -53,7 +53,7 @@ class FamillesGrid extends StatelessWidget {
                           imageUrl: "${controller.filteredfamilles[i].famImg}",
                           fit: BoxFit.cover,
                           placeholder: (context, url) => SizedBox(),
-                          errorWidget: (context, url, error) => SvgPicture.asset(AppSvg.galleryremove, color: AppColor.primaryColor),
+                          errorWidget: (context, url, error) => SizedBox(),
                         ),
                       ),
                     ),
@@ -66,7 +66,7 @@ class FamillesGrid extends StatelessWidget {
                           children: [
                             Text(
                               controller.filteredfamilles[i].famNom ?? "",
-                              style:  TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColor.primaryColor),
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColor.primaryColor),
                               maxLines: 3,
                             ),
                             // Optionally add a subtitle or description here
@@ -78,7 +78,7 @@ class FamillesGrid extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(right: 16.0),
                       child: CircleAvatar(
-                        backgroundColor: AppColor.primaryColor.withOpacity(0.85),
+                        backgroundColor: AppColor.primaryColor.withValues(alpha: 0.85),
                         radius: 18,
                         child: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 18),
                       ),

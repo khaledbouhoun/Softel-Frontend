@@ -21,7 +21,7 @@ class Soufamillespage extends StatelessWidget {
             backgroundColor: AppColor.background,
             elevation: 0,
             title: Text(
-              controller.selectedfamille.famNom!,
+              controller.selectedfamille.famNom ?? "",
               style: TextStyle(color: AppColor.primaryColor, fontSize: 20, fontWeight: FontWeight.bold),
             ),
             leading: Backwidget(),

@@ -1,8 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:softel/core/constant/color.dart';
-import 'package:softel/core/constant/imageasset.dart';
 import 'package:softel/data/model/company.dart';
 
 class CompanyWidget extends StatelessWidget {
@@ -15,34 +12,69 @@ class CompanyWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(20),
-      splashColor: AppColor.primaryColor.withOpacity(0.2),
       onTap: ontap,
       child: Container(
+        height: 180,
+        margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          // Gradient border layer
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: company.clsClr1!.withOpacity(0.8), width: 2),
+          borderRadius: BorderRadius.circular(20),
+          color: Colors.white,
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 20, offset: const Offset(0, 10))],
         ),
-        padding: const EdgeInsets.all(2), // Border thickness
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [BoxShadow(color: company.clsClr1!.withOpacity(0.5), blurRadius: 15, spreadRadius: 2, offset: const Offset(4, 4))],
-          ),
-          padding: const EdgeInsets.all(12),
-          child: Hero(
-            tag: company.clsNo!,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: CachedNetworkImage(
-                imageUrl: company.clsImg ?? '',
-                fit: BoxFit.fitWidth,
-                width: double.infinity,
-                placeholder: (context, url) => SizedBox(),
-                errorWidget: (context, url, error) => SvgPicture.asset(AppSvg.galleryremove, color: AppColor.primaryColor, width: 60),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Stack(
+            children: [
+              /// 🖼 LOGO AREA (clean & centered)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Hero(
+                    tag: company.clsNo!,
+                    child: CachedNetworkImage(
+                      imageUrl: company.clsImg ?? '',
+                      fit: BoxFit.contain, // ✅ FIXED
+                      placeholder: (context, url) => CircularProgressIndicator(color: company.clsClr1),
+                      errorWidget: (context, url, error) => Text(
+                        company.clsNom ?? '',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 18, color: company.clsClr1, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ),
               ),
-            ),
+
+              /// 🌑 SOFT BOTTOM GRADIENT (modern)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  height: 70,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.transparent, company.clsClr1!.withValues(alpha: 0.4)],
+                    ),
+                  ),
+                ),
+              ),
+
+              /// 🏷 TITLE
+              Positioned(
+                bottom: 12,
+                left: 16,
+                right: 16,
+                child: Text(
+                  company.clsNom ?? '',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
           ),
         ),
       ),

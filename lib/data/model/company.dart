@@ -19,14 +19,14 @@ class Company {
   Company.fromJson(Map<String, dynamic> json) {
     clsNo = json['ClsNo'];
     clsNom = json['ClsNom'];
-    clsClr1 = _parseColor(json['ClsClr1']);
-    clsClr2 = _parseColor(json['ClsClr2']);
+    clsClr1 = fromDelphi(json['ClsClr1']);
+    clsClr2 = fromDelphi(json['ClsClr2']);
     clsFac = json['ClsFac'];
     clsIns = json['ClsIns'];
     clsTik = json['ClsTik'];
     clsWhts = json['ClsWhts'];
     clsImg = json['ClsImg'];
-    clsActif = json['ClsActif'];
+    clsActif = (json['ClsActif'] is String) ? int.tryParse(json['ClsActif']) : json['ClsActif'];
     clsDateIn = _parseDate(json['ClsDateIn']);
     clsDateOut = _parseDate(json['ClsDateOut']);
   }
@@ -35,8 +35,8 @@ class Company {
     return {
       'ClsNo': clsNo,
       'ClsNom': clsNom,
-      'ClsClr1': clsClr1?.value.toRadixString(16),
-      'ClsClr2': clsClr2?.value.toRadixString(16),
+      'ClsClr1': clsClr1?.toARGB32().toRadixString(16),
+      'ClsClr2': clsClr2?.toARGB32().toRadixString(16),
       'ClsFac': clsFac,
       'ClsIns': clsIns,
       'ClsTik': clsTik,
@@ -64,5 +64,17 @@ class Company {
     } catch (_) {
       return null;
     }
+  }
+
+  Color fromDelphi(String? colorStr) {
+    if (colorStr == null || colorStr.isEmpty) return Colors.transparent;
+
+    int delphiColor = int.tryParse(colorStr) ?? 16777215;
+
+    int r = delphiColor & 0xFF;
+    int g = (delphiColor >> 8) & 0xFF;
+    int b = (delphiColor >> 16) & 0xFF;
+
+    return Color.fromARGB(255, r, g, b);
   }
 }

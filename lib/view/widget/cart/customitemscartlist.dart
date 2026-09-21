@@ -19,10 +19,10 @@ class GlassmorphismCartItem extends StatelessWidget {
           margin: EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.85),
-            border: Border.all(color: AppColor.primaryColor.withOpacity(0.2), width: 1),
+            color: Colors.white.withValues(alpha: 0.85),
+            border: Border.all(color: AppColor.primaryColor.withValues(alpha: 0.2), width: 1),
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [BoxShadow(color: AppColor.primaryColor.withOpacity(0.07), blurRadius: 8, offset: Offset(0, 2))],
+            boxShadow: [BoxShadow(color: AppColor.primaryColor.withValues(alpha: 0.07), blurRadius: 8, offset: Offset(0, 2))],
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -39,7 +39,7 @@ class GlassmorphismCartItem extends StatelessWidget {
                       //       )
                       //     :
                       CachedNetworkImage(
-                        imageUrl: 'https://www.pngall.com/wp-content/uploads/16/iPhone-16-Pro-Max-PNG.png',
+                        imageUrl: cart.cddImages != null && cart.cddImages!.isNotEmpty ? cart.cddImages!.first.imgNom! : '',
                         fit: BoxFit.scaleDown,
                         height: 170,
                         width: 120,
@@ -117,10 +117,10 @@ class GlassmorphismCartItemTraking extends StatelessWidget {
       margin: EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.85),
-        border: Border.all(color: AppColor.primaryColor.withOpacity(0.2), width: 1),
+        color: Colors.white.withValues(alpha: 0.85),
+        border: Border.all(color: AppColor.primaryColor.withValues(alpha: 0.2), width: 1),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: AppColor.primaryColor.withOpacity(0.07), blurRadius: 8, offset: Offset(0, 2))],
+        boxShadow: [BoxShadow(color: AppColor.primaryColor.withValues(alpha: 0.07), blurRadius: 8, offset: Offset(0, 2))],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -137,7 +137,7 @@ class GlassmorphismCartItemTraking extends StatelessWidget {
                   //       )
                   //     :
                   CachedNetworkImage(
-                    imageUrl: 'https://www.pngall.com/wp-content/uploads/16/iPhone-16-Pro-Max-PNG.png',
+                    imageUrl: cart.cddImages != null && cart.cddImages!.isNotEmpty ? cart.cddImages!.first.imgNom! : '',
                     fit: BoxFit.scaleDown,
                     height: 170,
                     width: 120,

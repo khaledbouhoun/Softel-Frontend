@@ -6,6 +6,9 @@ class MyTranslation extends Translations {
     "fr": {
       "error": "Erreur",
       "success": "Succès",
+
+      "successfully_removed": "Supprimé avec succès",
+
       "something_went_wrong": "Quelque chose s'est mal passé",
       "language": "Sélectionnez votre langue préférée",
       "select_company": "Sélectionner une entreprise",
@@ -22,6 +25,7 @@ class MyTranslation extends Translations {
       "select_commune": "Choisissez la commune",
       "signup": "S'inscrire",
 
+      "sign_in_to_continue": "Connectez-vous pour continuer",
       "success_signup": "Inscription réussie",
       "success_signup_text1": "Veuillez patienter jusqu'à ce que",
       "success_signup_text2": "vous contacte.",
@@ -45,6 +49,12 @@ class MyTranslation extends Translations {
       "products": "Produits",
       "see_all_familles": "Voir toutes les catégories",
       "no_more_products": "---- Aucun autre produit ----",
+      "no_products": "Aucun produit trouvé",
+      "searching_products": "Recherche de produits...",
+      "retry": "Réessayer",
+      "no_products_found": "Aucun produit trouvé",
+      "try_different_search": "Essayez une recherche différente",
+      "found": "Trouvé",
 
       "serch_famille": "Rechercher une catégorie...",
       "serch_sous_famille": "Rechercher une sous-catégorie...",
@@ -86,6 +96,7 @@ class MyTranslation extends Translations {
       "qty": "Qté",
       "price": "Prix",
       "total": "Total",
+      "item_confirmed_successfully": "L'article a été ajouté avec succès au panier",
 
       "delete_item": "Supprimer l'article",
       "successfully_deleted": "Supprimé avec succès",
@@ -105,6 +116,7 @@ class MyTranslation extends Translations {
 
       "add_to_cart": "Ajouter au panier",
       "delete_from_cart": "Supprimer du panier",
+      "processing": "En cours",
       "da": "DA",
 
       "not_valid_username": "Nom d'utilisateur invalide",
@@ -113,11 +125,19 @@ class MyTranslation extends Translations {
       "cant_be_empty": "ne peut pas être vide",
       "cant_be_less_than": "ne peut pas être inférieur à",
       "cant_be_larger_than": "ne peut pas être plus grand que",
+
+      "sort_relevant": "Relevant",
+      "sort_price_low": "Prix bas",
+      "sort_price_high": "Prix élevé",
+      "sort_newest": "Nouveau",
     },
 
     "ar": {
       "error": "خطأ",
+
       "success": "نجاح",
+      "successfully_removed": "تمت الازالة بنجاح",
+      "something_went_wrong": "هناك خطأ ما",
       "language": "اختر اللغة المفضلة",
       "select_company": "اختر الشركة",
       "google": "تابع باستخدام",
@@ -133,6 +153,7 @@ class MyTranslation extends Translations {
       "select_commune": "اختر البلدية",
       "signup": "تسجيل",
 
+      "sign_in_to_continue": "تسجيل الدخول لمتابعة",
       "success_signup": "تم التسجيل بنجاح",
       "success_signup_text1": "يرجى الانتظار حتى",
       "success_signup_text2": "يتواصل معك .",
@@ -156,6 +177,12 @@ class MyTranslation extends Translations {
       "products": "المنتجات",
       "see_all_familles": "عرض كل الفئات",
       "no_more_products": "---- لا توجد منتجات أخرى ----",
+      "no_products": "لا توجد منتجات",
+      "searching_products": "جار البحث عن المنتجات...",
+      "retry": "إعادة المحاولة",
+      "no_products_found": "لم يتم العثور على منتجات",
+      "try_different_search": "حاول بحثًا مختلفًا",
+      "found": "تم العثور على",
 
       "serch_famille": "ابحث عن فئة...",
       "serch_sous_famille": "ابحث عن فئة فرعية...",
@@ -197,6 +224,7 @@ class MyTranslation extends Translations {
       "qty": "الكمية",
       "price": "السعر",
       "total": "الإجمالي",
+      "item_confirmed_successfully": "تمت إضافة العنصر بنجاح إلى السلة",
 
       "delete_item": "حذف المنتج",
       "successfully_deleted": "تم الحذف بنجاح",
@@ -215,6 +243,7 @@ class MyTranslation extends Translations {
 
       "add_to_cart": "أضف إلى السلة",
       "delete_from_cart": "احذف من السلة",
+      "processing": "يتم التجهيز",
       "da": "د.ج",
 
       "not_valid_username": "اسم المستخدم غير صالح",
@@ -223,11 +252,19 @@ class MyTranslation extends Translations {
       "cant_be_empty": "لا يمكن أن يكون فارغًا",
       "cant_be_less_than": "لا يمكن أن يكون أقل من",
       "cant_be_larger_than": "لا يمكن أن يكون أكبر من",
+
+      "sort_relevant": "الأكثر صلة",
+      "sort_price_low": "الأقل سعراً",
+      "sort_price_high": "الأغلى سعراً",
+      "sort_newest": "الأحدث",
     },
 
     "en": {
       "error": "Error",
       "success": "Success",
+      "successfully_removed": "Successfully removed",
+
+      "something_went_wrong": "Something went wrong",
       "language": "Select your preferred language",
       "select_company": "Select a company",
       "google": "Continue with",
@@ -243,6 +280,7 @@ class MyTranslation extends Translations {
       "select_commune": "Choose Commune",
       "signup": "Sign up",
 
+      "sign_in_to_continue": "Sign in to continue",
       "success_signup": "Registration successful",
       "success_signup_text1": "Please wait until",
       "success_signup_text2": "contacts you.",
@@ -266,6 +304,12 @@ class MyTranslation extends Translations {
       "products": "Products",
       "see_all_familles": "See all categories",
       "no_more_products": "---- No more products ----",
+      "no_products": "No products found",
+      "searching_products": "Searching for products...",
+      "retry": "Retry",
+      "no_products_found": "No products found",
+      "try_different_search": "Try a different search",
+      "found": "Found",
 
       "serch_famille": "Search for a category...",
       "serch_sous_famille": "Search for a sub-category...",
@@ -307,6 +351,7 @@ class MyTranslation extends Translations {
       "qty": "Qty",
       "price": "Price",
       "total": "Total",
+      "item_confirmed_successfully": "Item added to cart successfully",
 
       "delete_item": "Delete item",
       "successfully_deleted": "Successfully deleted",
@@ -325,7 +370,7 @@ class MyTranslation extends Translations {
       "should_enter_quantity": "You should enter quantity",
       "add_to_cart": "Add to cart",
       "delete_from_cart": "Remove from cart",
-
+      "processing": "Processing",
       "da": "DA",
 
       "not_valid_username": "Invalid username",
@@ -334,6 +379,11 @@ class MyTranslation extends Translations {
       "cant_be_empty": "Can't be empty",
       "cant_be_less_than": "Can't be less than",
       "cant_be_larger_than": "Can't be larger than",
+
+      "sort_relevant": "Relevant",
+      "sort_price_low": "Lowest Price",
+      "sort_price_high": "Highest Price",
+      "sort_newest": "Newest",
     },
   };
 }

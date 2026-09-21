@@ -1,14 +1,16 @@
 import 'dart:async';
-import 'package:get/get.dart';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:softel/controller/auth/company_controller.dart';
 import 'package:softel/core/class/crud.dart';
-import 'package:softel/view/widget/dialog.dart';
-import 'package:softel/linkapi.dart';
-import 'package:softel/data/model/company.dart';
-import 'package:softel/core/services/services.dart';
+import 'package:softel/core/constant/color.dart';
 import 'package:softel/core/constant/routesstr.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:softel/core/services/services.dart';
+import 'package:softel/data/model/company.dart';
+import 'package:softel/linkapi.dart';
+import 'package:softel/view/widget/dialog.dart';
 
 class LoginController extends GetxController {
   final Crud crud = Crud();
@@ -27,9 +29,7 @@ class LoginController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    print('LoginController initialized ......');
     company = companyController.selectedCompany;
-    print('LoginController initialized with company: ${company?.clsNom}');
   }
 
   final GoogleSignIn signIn = GoogleSignIn();
@@ -57,13 +57,11 @@ class LoginController extends GetxController {
       // Optionally, proceed to backend login after Google sign-in
       await login();
     } catch (e) {
-      dialogfun.showSnackError('error'.tr, "❌ Google Sign-In failed: $e");
-      print("❌ Google Sign-In failed: $e");
+      dialogfun.showSnackError('error'.tr, "❌ Google Sign-In failed");
     }
   }
 
   /// Sign out from Google and clear local user info.
- 
 
   /// Login to backend using Google ID.
   Future<void> login() async {
@@ -75,8 +73,6 @@ class LoginController extends GetxController {
         'ClsNo': company?.clsNo,
         'CliGoogleId': myServices.sharedPreferences.getString('CliGoogleId') ?? '',
       });
-      print("Response from backend login: ${response.body}");
-      print("Response from backend login: ${response.statusCode}");
 
       if (response.statusCode == 200) {
         final body = response.body as Map<String, dynamic>;
@@ -86,12 +82,13 @@ class LoginController extends GetxController {
         if (body.containsKey('client')) {
           final client = body['client'];
           if (client is Map<String, dynamic>) {
-            myServices.sharedPreferences.setString('name', client['name'] ?? '');
-            myServices.sharedPreferences.setString('email', client['email'] ?? '');
+            myServices.sharedPreferences.setString('name', client['CliNom'] ?? '');
+            myServices.sharedPreferences.setString('email', client['CliEmail'] ?? '');
+            myServices.sharedPreferences.setString('companyImg', company?.clsImg ?? '');
+            AppColor.primaryColor = company?.clsClr1 ?? AppColor.primaryColor;
+            AppColor.secondaryColor = company?.clsClr2 ?? AppColor.secondaryColor;
           }
         }
-        print("✅ Backend login successful for Google ID: $googleId");
-        print("data arguments: company=${company?.clsNom}, googleId=$googleId, name=$name, email=$email");
         Get.offAllNamed(AppRoute.homepage);
       } else if (response.statusCode == 401) {
         dialogfun.showSuccessDialog(

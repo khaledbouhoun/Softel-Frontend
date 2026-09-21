@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.softel">
+    package="com.softel.b2bapp">
     <application
         android:label="softel"
         android:name="${applicationName}"

@@ -11,16 +11,22 @@ class CompanyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.background,
+      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        title: Text('select_company'.tr, style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(
+          'select_company'.tr,
+          style: const TextStyle(
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
+            color: Color(0xFF1A1A1A),
+          ),
+        ),
         centerTitle: true,
-        backgroundColor: AppColor.background,
+        backgroundColor: const Color(0xFFF5F5F5),
         scrolledUnderElevation: 0,
         elevation: 0,
-        toolbarHeight: 80,
+        toolbarHeight: 64,
       ),
-      extendBodyBehindAppBar: true,
       body: GetBuilder<CompanyController>(
         init: CompanyController(),
         builder: (controller) {
@@ -28,28 +34,21 @@ class CompanyPage extends StatelessWidget {
             return Center(child: Loadingwidget(width: Get.width / 2));
           }
 
-          return Padding(
-            padding: const EdgeInsets.all(10),
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.8, // Slightly taller for name visibility
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-              ),
-              itemCount: controller.companies.length,
-              itemBuilder: (context, index) {
-                return CompanyWidget(
-                  company: controller.companies[index],
-                  ontap: () async {
-                    await controller.selectCompany(controller.companies[index]);
-                  },
-                );
-              },
-            ),
+          return ListView.builder(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+            itemCount: controller.companies.length,
+            itemBuilder: (context, index) {
+              return CompanyWidget(
+                company: controller.companies[index],
+                ontap: () async {
+                  await controller.selectCompany(controller.companies[index]);
+                },
+              );
+            },
           );
         },
       ),
     );
   }
-}      
+}

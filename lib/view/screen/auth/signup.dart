@@ -64,9 +64,13 @@ class SignUp extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        controller.email.isEmpty ? "email".tr : controller.email, // "Email"
-                        style: TextStyle(color: AppColor.secondaryColor, fontSize: 18, fontWeight: FontWeight.w600, fontFamily: "Cairo"),
+                      Expanded(
+                        child: Text(
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          controller.email.isEmpty ? "email".tr : controller.email, // "Email"
+                          style: TextStyle(color: AppColor.secondaryColor, fontSize: 18, fontWeight: FontWeight.w600, fontFamily: "Cairo"),
+                        ),
                       ),
                       SvgPicture.asset(AppSvg.email, color: AppColor.primaryColor),
                     ],

@@ -1,5 +1,4 @@
 class AppRoute {
-
   static const String company = "/company";
   static const String login = "/login";
   static const String onBoarding = "/onboarding";
@@ -19,6 +18,7 @@ class AppRoute {
   static const String myfavroite = "/myfavroite";
   static const String cart = "/cart";
   static const String newArrivals = "/newarrivals";
+  static const String search = "/search";
   // Address
 
   static const String trakingcartdetaills = "/trakingcartdetaills";

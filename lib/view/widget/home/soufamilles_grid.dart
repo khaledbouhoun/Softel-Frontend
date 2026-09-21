@@ -37,9 +37,13 @@ class SoufamillesGrid extends StatelessWidget {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(22),
                   boxShadow: [
-                    BoxShadow(color: const Color.fromARGB(255, 0, 88, 129).withOpacity(0.10), blurRadius: 18, offset: const Offset(0, 8)),
+                    BoxShadow(
+                      color: const Color.fromARGB(255, 0, 88, 129).withValues(alpha: 0.10),
+                      blurRadius: 18,
+                      offset: const Offset(0, 8),
+                    ),
                   ],
-                  border: Border.all(color: AppColor.primaryColor.withOpacity(0.13), width: 1.2),
+                  border: Border.all(color: AppColor.primaryColor.withValues(alpha: 0.13), width: 1.2),
                 ),
                 child: Row(
                   children: [
@@ -54,7 +58,7 @@ class SoufamillesGrid extends StatelessWidget {
                           imageUrl: "${controller.soufilteredfamilles[i].souImg}",
                           fit: BoxFit.cover,
                           placeholder: (context, url) => SizedBox(),
-                          errorWidget: (context, url, error) => SvgPicture.asset(AppSvg.galleryremove, color: AppColor.primaryColor),
+                          errorWidget: (context, url, error) => SizedBox(),
                         ),
                       ),
                     ),
@@ -67,7 +71,7 @@ class SoufamillesGrid extends StatelessWidget {
                           children: [
                             Text(
                               controller.soufamilles[i].souNom ?? "",
-                              style:  TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColor.primaryColor),
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColor.primaryColor),
                               maxLines: 3,
                             ),
                             // Optionally add a subtitle or description here
@@ -79,7 +83,7 @@ class SoufamillesGrid extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(right: 16.0),
                       child: CircleAvatar(
-                        backgroundColor: AppColor.primaryColor.withOpacity(0.85),
+                        backgroundColor: AppColor.primaryColor.withValues(alpha: 0.85),
                         radius: 18,
                         child: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 18),
                       ),

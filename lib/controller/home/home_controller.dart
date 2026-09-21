@@ -1,4 +1,6 @@
-import 'package:softel/controller/familles/famillescontroller.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
 import 'package:softel/core/class/crud.dart';
 import 'package:softel/core/constant/imageasset.dart';
 import 'package:softel/core/constant/routesstr.dart';
@@ -10,185 +12,451 @@ import 'package:softel/linkapi.dart';
 import 'package:softel/view/screen/product/productdetails.dart';
 import 'package:softel/view/widget/dialog.dart';
 import 'package:softel/view/widget/home/category_selector.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class HomeController extends GetxController {
-  // --- My Services ---
-  MyServices myServices = Get.find();
-  Dialogfun dialogfun = Dialogfun();
-  Crud crud = Crud();
+  // ===========================================================================
+  // Constants
+  // ===========================================================================
 
-  String logoUrl = "";
+  static const int _pageSize = 15;
+  static const String _allCategoryId = '00';
 
-  RxInt cartcount = 0.obs;
-  // --- familles ---
-  List<Familles> familles = [];
-  Familles famillesselcted = Familles();
+  // ===========================================================================
+  // Dependencies
+  // ===========================================================================
 
-  // --- products ---
-  RxBool isloadingProducts = false.obs;
-  List<Product> products = [];
-  List<Product> productssearch = [];
-  List<Product> filteredproductsbyfamille = [];
-  List<FamilleItem> familleproducts = [];
-  // --- Offset ---
-  bool isoffsetloding = false;
+  final MyServices _services = Get.find<MyServices>();
+  final Crud _crud = Crud();
+  final Dialogfun _dialog = Dialogfun();
+
+  // ===========================================================================
+  // Controllers
+  // ===========================================================================
+
   final ScrollController scrollController = ScrollController();
-  RxBool endofproducts = false.obs;
-  // --- Cart ---
-  String idcart = "";
-  // --- Status Request ---
-  // --- Search ---
-  TextEditingController? search = TextEditingController();
   final TextEditingController searchController = TextEditingController();
-  String searchQuery = '';
-  // --- Selected famille ---
-  int selectedfamille = 0;
 
-  // --- Images ---
-  List<ImagesBanner> bannerImage = [];
-  // --- Favorites ---
-  List<bool> favorites = [];
+  // ===========================================================================
+  // Branding
+  // ===========================================================================
+
+  final RxnString logoUrl = RxnString();
+
+  // ===========================================================================
+  // Cart
+  // ===========================================================================
+
+  final RxInt cartCount = 0.obs;
+
+  // ===========================================================================
+  // Banners
+  // ===========================================================================
+
+  final banners = <ImagesBanner>[].obs;
+  final RxBool isLoadingBanners = false.obs;
+
+  // ===========================================================================
+  // Categories
+  // ===========================================================================
+
+  final familles = <Familles>[].obs;
+  final familleItems = <FamilleItem>[].obs;
+  final selectedFamille = Rx<Familles>(Familles(famNo: _allCategoryId, famNom: 'all'.tr));
+  final RxBool isLoadingFamilies = false.obs;
+
+  // ===========================================================================
+  // Products
+  // ===========================================================================
+
+  final products = <Product>[].obs;
+  final searchResults = <Product>[].obs;
+
+  // ===========================================================================
+  // Loading / Pagination
+  // ===========================================================================
+
+  final RxBool isLoadingProducts = false.obs;
+  final RxBool isLoadingMore = false.obs;
+  final RxBool hasReachedEnd = false.obs;
+
+  // ===========================================================================
+  // Search
+  // ===========================================================================
+
+  final RxString searchQuery = ''.obs;
+
+  // ===========================================================================
+  // Internal state
+  // ===========================================================================
+
+  int _requestId = 0;
+
+  // ===========================================================================
+  // Lifecycle
+  // ===========================================================================
 
   @override
   void onInit() {
-    print("Home Controller Initialized");
-    print("img $logoUrl");
-    logoUrl = myServices.sharedPreferences.getString("companyImg") ?? AppImageAsset.logo;
-    print("img $logoUrl");
-    fetchbanner();
-    fetchFamilles();
-    fetch();
-    scrollController.addListener(() {
-      if (scrollController.position.pixels == scrollController.position.maxScrollExtent) {
-        fetch(isoffsetloding: true);
-      }
-    });
     super.onInit();
+
+    _initialize();
+
+    scrollController.addListener(_onScroll);
   }
 
   @override
   void onClose() {
-    scrollController.dispose();
+    scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
+
+    searchController.dispose();
+
     super.onClose();
   }
 
-  ///  ----banner ----
+  // ===========================================================================
+  // Initialization
+  // ===========================================================================
 
-  Future<void> fetchbanner() async {
-    var response = await crud.get(AppLink.imagesBanner);
-    if (response.statusCode == 200) {
-      bannerImage.addAll((response.body as List).map((item) => ImagesBanner.fromJson(item)).toList());
-    } else if (response.statusCode == 404) {
-      bannerImage = [];
-    } else {
-      dialogfun.showSnackError("Error", "Failed to load banner images");
+  Future<void> _initialize() async {
+    _loadBranding();
+
+    await Future.wait([
+      fetchBanners(),
+      fetchFamilles(),
+      fetchCartCount(),
+    ]);
+
+    await fetchProducts(reset: true);
+  }
+
+  void _loadBranding() {
+    logoUrl.value = _services.sharedPreferences.getString('companyImg') ?? AppImageAsset.logo;
+  }
+
+  // ===========================================================================
+  // Scroll / Pagination
+  // ===========================================================================
+
+  void _onScroll() {
+    if (!scrollController.hasClients) return;
+
+    final position = scrollController.position;
+
+    const threshold = 300.0;
+
+    final isNearBottom = position.pixels >= position.maxScrollExtent - threshold;
+
+    if (!isNearBottom) return;
+
+    fetchMoreProducts();
+  }
+
+  Future<void> fetchMoreProducts() async {
+    if (isLoadingProducts.value) return;
+    if (isLoadingMore.value) return;
+    if (hasReachedEnd.value) return;
+
+    await fetchProducts(reset: false);
+  }
+
+  // ===========================================================================
+  // Banners
+  // ===========================================================================
+
+  Future<void> fetchBanners() async {
+    isLoadingBanners.value = true;
+    try {
+      final response = await _crud.get(AppLink.imagesBanner);
+
+      if (response.statusCode == 404) {
+        banners.clear();
+        return;
+      }
+
+      if (response.statusCode != 200) {
+        _showError('Failed to load banners');
+        banners.clear();
+        return;
+      }
+
+      final body = response.body;
+
+      if (body is! List) {
+        banners.clear();
+        return;
+      }
+
+      final parsed = body.whereType<Map<String, dynamic>>().map(ImagesBanner.fromJson).toList();
+      banners.assignAll(parsed);
+    } catch (e, stackTrace) {
+      _logError('fetchBanners', e, stackTrace);
+      banners.clear();
+    } finally {
+      isLoadingBanners.value = false;
     }
-    update();
   }
 
-  Future<void> countcart() async {
-    var response = await crud.get(AppLink.cartCount);
-    if (response.statusCode == 200) {
-      cartcount.value = response.body['cartCount'] ?? 0;
-    } else {
-      cartcount.value = 0;
-    }
-    update();
-  }
-
-  // ---fAMILLES ----
-  void regeneratefamilleproducts() {
-    familleproducts = [
-      FamilleItem('all'.tr, AppSvg.widget2Filled),
-      ...familles.map((fam) => FamilleItem(fam.famNom ?? '', AppSvg.widget2)),
-    ];
-  }
+  // ===========================================================================
+  // Categories
+  // ===========================================================================
 
   Future<void> fetchFamilles() async {
-    FamillesController famillesController = Get.put(FamillesController());
-
-    await famillesController.fetch();
-    familles = famillesController.familles;
-    update();
-    regeneratefamilleproducts();
+    isLoadingFamilies.value = true;
+    try {
+      await _fetchFamillesDirectly();
+      _buildFamilleItems();
+    } catch (e, stackTrace) {
+      _logError('fetchFamilles', e, stackTrace);
+      familles.clear();
+      _buildFamilleItems();
+    } finally {
+      isLoadingFamilies.value = false;
+    }
   }
 
-  List<Product> getFilteredproducts() {
-    if (selectedfamille == 0) {
-      return products;
-    } else if (familles.isNotEmpty && selectedfamille - 1 < familles.length) {
-      return products.where((item) => item.artFam == familles[selectedfamille - 1].famNom).toList();
+  Future<void> _fetchFamillesDirectly() async {
+    final response = await _crud.get(AppLink.familles);
+
+    if (response.statusCode != 200 || response.body is! List) {
+      familles.clear();
+      return;
+    }
+
+    final parsed = (response.body as List).whereType<Map<String, dynamic>>().map(Familles.fromJson).toList();
+    familles.assignAll(parsed);
+  }
+
+  void _buildFamilleItems() {
+    final allFamille = Familles(famNo: _allCategoryId, famNom: 'all'.tr);
+
+    final items = [
+      FamilleItem(allFamille, AppSvg.widget2Filled),
+      ...familles.map((famille) => FamilleItem(famille, AppSvg.widget2)),
+    ];
+    familleItems.assignAll(items);
+
+    final selectedId = selectedFamille.value.famNo;
+
+    final exists = familleItems.any((item) => item.famille.famNo == selectedId);
+
+    if (!exists) {
+      selectedFamille.value = allFamille;
+    }
+  }
+
+  void selectFamille(Familles famille) {
+    if (selectedFamille.value.famNo == famille.famNo) return;
+
+    selectedFamille.value = famille;
+
+    fetchProducts(reset: true);
+  }
+
+  void resetSelectedFamille() {
+    selectedFamille.value = Familles(famNo: _allCategoryId, famNom: 'all'.tr);
+  }
+
+  // Backward compatibility if old views/controllers use this method.
+  void reializeSelectedFamille() {
+    resetSelectedFamille();
+  }
+
+  void goToFamilles(Familles famille) {
+    final famNo = int.tryParse(famille.famNo ?? '');
+
+    if (famNo == null || famille.famNom == null) return;
+
+    Get.toNamed(AppRoute.famillesdetailes, arguments: {'catid': famNo, 'catnam': famille.famNom});
+  }
+
+  // ===========================================================================
+  // Products
+  // ===========================================================================
+
+  Future<void> fetchProducts({required bool reset}) async {
+    if (reset) {
+      if (isLoadingProducts.value) return;
+
+      isLoadingProducts.value = true;
+      hasReachedEnd.value = false;
+
+      products.clear();
+      searchResults.clear();
+
+      // New request generation.
+      _requestId++;
     } else {
+      if (isLoadingProducts.value) return;
+      if (isLoadingMore.value) return;
+      if (hasReachedEnd.value) return;
+
+      isLoadingMore.value = true;
+    }
+
+    final currentRequestId = _requestId;
+    final offset = reset ? 0 : products.length;
+
+    try {
+      final url = _buildProductsUrl(offset);
+
+      final response = await _crud.get(url);
+
+      // Ignore an old request if the user changed category/search/etc.
+      if (reset && currentRequestId != _requestId) {
+        return;
+      }
+
+      if (response.statusCode == 404) {
+        if (reset) {
+          products.clear();
+          searchResults.clear();
+        }
+
+        hasReachedEnd.value = true;
+        return;
+      }
+
+      if (response.statusCode != 200) {
+        _showError(reset ? 'Failed to load products' : 'Failed to load more products');
+        return;
+      }
+
+      final newProducts = _parseProducts(response.body);
+
+      if (reset) {
+        products.assignAll(newProducts);
+      } else {
+        products.addAll(newProducts);
+      }
+
+      if (newProducts.length < _pageSize) {
+        hasReachedEnd.value = true;
+      }
+
+      _updateSearchResults();
+    } catch (e, stackTrace) {
+      _logError(reset ? 'fetchProducts' : 'fetchMoreProducts', e, stackTrace);
+    } finally {
+      if (reset) {
+        isLoadingProducts.value = false;
+      } else {
+        isLoadingMore.value = false;
+      }
+    }
+  }
+
+  String _buildProductsUrl(int offset) {
+    final famNo = selectedFamille.value.famNo ?? _allCategoryId;
+
+    return '${AppLink.products}'
+        '?offset=$offset'
+        '&limit=$_pageSize'
+        '&famNo=$famNo';
+  }
+
+  List<Product> _parseProducts(dynamic body) {
+    if (body is! Map<String, dynamic>) {
       return [];
     }
-  }
 
-  void goToFamilles(Familles familles) {
-    Get.toNamed(AppRoute.famillesdetailes, arguments: {"catid": int.parse(familles.famNo!), "catnam": familles.famNom!});
-  }
+    final data = body['data'];
 
-  // PRODUCT ---
-
-  Future<void> fetchAll() async {
-    products.clear();
-    endofproducts.value = false;
-    await fetch();
-  }
-
-  Future<void> fetch({bool isoffsetloding = false}) async {
-    isloadingProducts.value = true;
-    var response = await crud.post(AppLink.products, {
-      'offset': products.length,
-      'limit': 15,
-      'famNo': (selectedfamille - 1) >= 0 ? familles[selectedfamille - 1].famNo : "00",
-    });
-    if (response.statusCode == 201) {
-      isloadingProducts.value = false;
-      products.addAll((response.body['data'] as List).map((item) => Product.fromJson(item)).toList());
-      countcart();
-      filteredproductsbyfamille = getFilteredproducts();
-    } else if (response.statusCode == 404 && products.isNotEmpty) {
-      isloadingProducts.value = false;
-      endofproducts.value = true;
-    } else if (response.statusCode == 404 && products.isEmpty) {
-      isloadingProducts.value = false;
-      products = [];
-    } else {
-      isloadingProducts.value = false;
-      products = [];
-      dialogfun.showSnackError("Error", "Failed to load products");
+    if (data is! List) {
+      return [];
     }
-    update();
+
+    return data.whereType<Map<String, dynamic>>().map(Product.fromJson).toList();
   }
 
-  Future<void> goToPageProductDetails(Product product) async {
-    final double? result = await Get.to<double?>(() => ProductDetails(), arguments: {"product": product, "fromcart": false});
-    if (result != null) {
-      product.artQte = result;
-      countcart();
-      update();
-    }
-  }
+  // ===========================================================================
+  // Search
+  // ===========================================================================
 
   void onSearchChanged(String query) {
-    searchQuery = query;
-    filterproducts();
-    update();
+    searchQuery.value = query.trim();
+
+    _updateSearchResults();
   }
 
   void clearSearch() {
     searchController.clear();
-    onSearchChanged('');
+
+    searchQuery.value = '';
+
+    _updateSearchResults();
   }
 
-  void filterproducts() {
-    if (searchQuery.isEmpty) {
-      productssearch = products; // or whatever your full list is called
-    } else {
-      productssearch = products.where((item) => (item.artNom ?? '').toLowerCase().contains(searchQuery.toLowerCase())).toList();
+  void _updateSearchResults() {
+    final q = searchQuery.value;
+    if (q.isEmpty) {
+      searchResults.assignAll(products);
+      return;
     }
-    update();
+
+    final query = q.toLowerCase();
+
+    final results = products.where((product) {
+      final name = product.artNom?.toLowerCase() ?? '';
+
+      return name.contains(query);
+    }).toList();
+
+    searchResults.assignAll(results);
+  }
+
+  // ===========================================================================
+  // Cart
+  // ===========================================================================
+
+  Future<void> fetchCartCount() async {
+    try {
+      final response = await _crud.get(AppLink.cartCount);
+
+      if (response.statusCode != 200 || response.body is! Map) {
+        cartCount.value = 0;
+        return;
+      }
+
+      final value = response.body['cartCount'];
+
+      cartCount.value = value is int ? value : int.tryParse(value?.toString() ?? '') ?? 0;
+    } catch (e, stackTrace) {
+      _logError('fetchCartCount', e, stackTrace);
+      cartCount.value = 0;
+    }
+  }
+
+  // ===========================================================================
+  // Navigation
+  // ===========================================================================
+
+  Future<void> goToProductDetails(Product product) async {
+    final result = await Get.to<double?>(() => ProductDetails(), arguments: {'product': product, 'fromcart': false});
+
+    if (result == null) return;
+
+    product.artQte = result;
+    products.refresh();
+
+    await fetchCartCount();
+  }
+
+  // Backward compatibility with old code.
+  Future<void> goToPageProductDetails(Product product) {
+    return goToProductDetails(product);
+  }
+
+  // ===========================================================================
+  // Helpers
+  // ===========================================================================
+
+  void _showError(String message) {
+    _dialog.showSnackError('Error', message);
+  }
+
+  void _logError(String method, Object error, StackTrace stackTrace) {
+    debugPrint('[HomeController][$method] $error\n$stackTrace');
   }
 }
