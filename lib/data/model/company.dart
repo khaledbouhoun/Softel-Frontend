@@ -48,14 +48,6 @@ class Company {
     };
   }
 
-  Color _parseColor(String? hex) {
-    if (hex == null || hex.isEmpty) return Colors.black;
-    try {
-      return Color(int.parse(hex, radix: 16));
-    } catch (_) {
-      return Colors.black;
-    }
-  }
 
   DateTime? _parseDate(String? date) {
     if (date == null || date.isEmpty) return null;

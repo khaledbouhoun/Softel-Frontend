@@ -1,20 +1,20 @@
-import 'package:softel/controller/traking/traking_controller.dart';
-import 'package:softel/controller/cart/trakingcartdetaills_controller.dart';
 import 'package:get/get.dart';
+import 'package:softel/controller/cart/trakingcartdetaills_controller.dart';
+import 'package:softel/controller/traking/traking_controller.dart';
 
 /// Tracking/Orders Feature Binding
-/// Handles injection of Tracking and Order Details-related controllers
 class TrackingBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => TrakingControllerDetails());
+    Get.lazyPut<TrakingController>(() => TrakingController());
+    Get.lazyPut<TrakingControllerDetails>(() => TrakingControllerDetails());
   }
 }
 
-/// Tracking Details (Order) Feature Binding
+/// Tracking Cart Details (Order Items) Feature Binding
 class TrackingDetailsBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => TrakingcartdetaillsController());
+    Get.lazyPut<TrakingcartdetaillsController>(() => TrakingcartdetaillsController());
   }
 }

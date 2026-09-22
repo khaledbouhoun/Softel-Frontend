@@ -8,45 +8,69 @@ import 'package:softel/linkapi.dart';
 import 'package:softel/view/widget/dialog.dart';
 
 class FamillesController extends GetxController {
-  MyServices myServices = Get.find();
-  Crud crud = Crud();
-  Dialogfun dialogfun = Dialogfun();
-  TextEditingController searchController = TextEditingController();
-  List<Familles> familles = [];
-  List<Familles> filteredfamilles = [];
-  String logoUrl = "";
+  final MyServices _myServices = Get.find<MyServices>();
+  final Crud _crud = Crud();
+  final Dialogfun _dialogfun = Dialogfun();
+  final TextEditingController searchController = TextEditingController();
+
+  final familles = <Familles>[].obs;
+  final filteredfamilles = <Familles>[].obs;
+  final RxString logoUrl = ''.obs;
+  final RxBool isLoading = false.obs;
 
   @override
   void onInit() {
-    logoUrl = myServices.sharedPreferences.getString("companyImg") ?? "";
-    fetch();
     super.onInit();
+    logoUrl.value = _myServices.sharedPreferences.getString("companyImg") ?? "";
+    fetch();
+  }
+
+  @override
+  void onClose() {
+    searchController.dispose();
+    super.onClose();
   }
 
   Future<void> fetch() async {
-    var response = await crud.get(AppLink.familles);
-    if (response.statusCode == 200) {
-      familles = (response.body as List).map((item) => Familles.fromJson(item)).toList();
-      filteredfamilles = List.from(familles);
-    } else if (response.statusCode == 404) {
-      familles = [];
-    } else {
-      familles = [];
-      dialogfun.showSnackError("Error ${response.statusCode}", response.body['message']);
+    isLoading.value = true;
+    try {
+      final response = await _crud.get(AppLink.familles);
+      if (response.statusCode == 200 && response.body is List) {
+        final items = (response.body as List)
+            .whereType<Map<String, dynamic>>()
+            .map(Familles.fromJson)
+            .toList();
+        familles.assignAll(items);
+        filteredfamilles.assignAll(items);
+      } else if (response.statusCode == 404) {
+        familles.clear();
+        filteredfamilles.clear();
+      } else {
+        familles.clear();
+        filteredfamilles.clear();
+        _dialogfun.showSnackError("Error ${response.statusCode}", response.body?['message']?.toString() ?? '');
+      }
+    } catch (e) {
+      familles.clear();
+      filteredfamilles.clear();
+    } finally {
+      isLoading.value = false;
     }
-    update();
   }
 
-  searchProducts(String query) {
+  void searchProducts(String query) {
     if (query.isEmpty) {
-      filteredfamilles = List.from(familles);
+      filteredfamilles.assignAll(familles);
     } else {
-      filteredfamilles = familles.where((item) => (item.famNom ?? '').toLowerCase().contains(query.toLowerCase())).toList();
+      final lower = query.toLowerCase();
+      filteredfamilles.assignAll(
+        familles.where((item) => (item.famNom ?? '').toLowerCase().contains(lower)).toList(),
+      );
     }
-    update();
   }
 
   void goToCategoreis(Familles familles) {
     Get.toNamed(AppRoute.soufamilles, arguments: {"famille": familles});
   }
 }
+

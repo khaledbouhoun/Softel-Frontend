@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:softel/controller/home/home_controller.dart';
+import 'package:get/get.dart';
 import 'package:softel/core/class/crud.dart';
+import 'package:softel/core/constant/routesstr.dart';
+import 'package:softel/core/services/cart_state_service.dart';
 import 'package:softel/core/services/services.dart';
 import 'package:softel/data/model/cart.dart';
 import 'package:softel/data/model/product.dart';
-import 'package:get/get.dart';
 import 'package:softel/linkapi.dart';
-import 'package:softel/view/screen/product/productdetails.dart';
 import 'package:softel/view/widget/dialog.dart';
 
 class CartController extends GetxController {
-  MyServices myServices = Get.find();
-  Crud crud = Crud();
-  Dialogfun dialogfun = Dialogfun();
-  List<CartModel> data = [];
-  RxDouble totalcountproducts = 0.0.obs;
-  RxBool isloading = false.obs;
-  RxBool isloadingConfirmButton = false.obs;
+  final MyServices myServices = Get.find<MyServices>();
+  final Crud crud = Crud();
+  final Dialogfun dialogfun = Dialogfun();
+
+  final data = <CartModel>[].obs;
+  final RxDouble totalcountproducts = 0.0.obs;
+  final RxBool isloading = false.obs;
+  final RxBool isloadingConfirmButton = false.obs;
 
   String totalprice() {
     double total = 0.0;
@@ -26,22 +27,32 @@ class CartController extends GetxController {
     return total.toStringAsFixed(2);
   }
 
+  @override
+  void onInit() {
+    super.onInit();
+    view();
+  }
+
   Future<void> view() async {
     isloading.value = true;
-    print("Fetching cart items...");
-    var response = await crud.get(AppLink.cart);
-    if (response.statusCode == 200) {
+    try {
+      final response = await crud.get(AppLink.cart);
+      if (response.statusCode == 200 && response.body is List) {
+        final items = (response.body as List).map((e) => CartModel.fromJson(e)).toList();
+        data.assignAll(items);
+        Get.find<CartStateService>().updateCartCount(items.length);
+      } else if (response.statusCode == 404) {
+        data.clear();
+        Get.find<CartStateService>().updateCartCount(0);
+      } else {
+        data.clear();
+        dialogfun.showSnackError("Error ${response.statusCode}", response.body?['message']?.toString() ?? '');
+      }
+    } catch (e) {
+      data.clear();
+    } finally {
       isloading.value = false;
-      data = (response.body as List).map((e) => CartModel.fromJson(e)).toList();
-    } else if (response.statusCode == 404) {
-      isloading.value = false;
-      data = [];
-    } else {
-      isloading.value = false;
-      dialogfun.showSnackError("Error ${response.statusCode}", response.body['message']);
-      data = [];
     }
-    update();
   }
 
   Future<void> delete(BuildContext context, CartModel cart) async {
@@ -52,15 +63,15 @@ class CartController extends GetxController {
         backgroundColor: Colors.white,
         title: Row(
           children: [
-            Icon(Icons.delete_forever, color: Colors.red, size: 32),
-            SizedBox(width: 10),
+            const Icon(Icons.delete_forever, color: Colors.red, size: 32),
+            const SizedBox(width: 10),
             Text(
               "delete_item".tr,
               style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red[700]),
             ),
           ],
         ),
-        content: Text("are_you_sure_you_want_to_delete_item".tr, style: TextStyle(fontSize: 16)),
+        content: Text("are_you_sure_you_want_to_delete_item".tr, style: const TextStyle(fontSize: 16)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -71,20 +82,21 @@ class CartController extends GetxController {
               backgroundColor: Colors.red[600],
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            icon: Icon(Icons.delete, color: Colors.white),
-            label: Text("delete".tr, style: TextStyle(color: Colors.white)),
+            icon: const Icon(Icons.delete, color: Colors.white),
+            label: Text("delete".tr, style: const TextStyle(color: Colors.white)),
             onPressed: () => Navigator.of(context).pop(true),
           ),
         ],
       ),
     );
     if (result == true) {
-      var response = await crud.delete(AppLink.deleteCart, {"CddID": cart.cddID, "CddArtNo": cart.cddArtNo});
+      final response = await crud.delete(AppLink.deleteCart, {"CddID": cart.cddID, "CddArtNo": cart.cddArtNo});
       if (response.statusCode == 200) {
         dialogfun.showSnackSuccess("success".tr, "successfully_deleted".tr);
-        view();
+        await view();
+        await Get.find<CartStateService>().fetchCartCount();
       } else {
-        dialogfun.showSnackError("${"error".tr} ${response.statusCode}", response.body['message']);
+        dialogfun.showSnackError("${"error".tr} ${response.statusCode}", response.body?['message']?.toString() ?? '');
       }
     }
   }
@@ -97,16 +109,15 @@ class CartController extends GetxController {
         backgroundColor: Colors.white,
         title: Row(
           children: [
-            Icon(Icons.check_box, color: Colors.green, size: 32),
-
-            SizedBox(width: 10),
+            const Icon(Icons.check_box, color: Colors.green, size: 32),
+            const SizedBox(width: 10),
             Text(
               "confirm".tr,
               style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green[700]),
             ),
           ],
         ),
-        content: Text("are_you_sure_you_want_to_confirm_this_order".tr, style: TextStyle(fontSize: 16)),
+        content: Text("are_you_sure_you_want_to_confirm_this_order".tr, style: const TextStyle(fontSize: 16)),
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
@@ -117,8 +128,8 @@ class CartController extends GetxController {
               backgroundColor: Colors.green[600],
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            icon: Icon(Icons.check, color: Colors.white),
-            label: Text("confirm".tr, style: TextStyle(color: Colors.white)),
+            icon: const Icon(Icons.check, color: Colors.white),
+            label: Text("confirm".tr, style: const TextStyle(color: Colors.white)),
             onPressed: () => Get.back(result: true),
           ),
         ],
@@ -126,23 +137,22 @@ class CartController extends GetxController {
     );
     if (result == true) {
       isloadingConfirmButton.value = true;
-      var response = await crud.get(AppLink.confirmCommande);
+      final response = await crud.get(AppLink.confirmCommande);
       if (response.statusCode == 200) {
         isloadingConfirmButton.value = false;
-        if (Get.isRegistered<HomeController>()) {
-          await Get.find<HomeController>().fetchProducts(reset: true);
-        }
+        Get.find<CartStateService>().updateCartCount(0);
+        data.clear();
         Get.back();
         dialogfun.showSnackSuccess("success".tr, "item_confirmed_successfully".tr);
       } else {
         isloadingConfirmButton.value = false;
-        dialogfun.showSnackError("error".tr, response.body['message']);
+        dialogfun.showSnackError("error".tr, response.body?['message']?.toString() ?? '');
       }
     }
   }
 
   Future<void> edit(CartModel cart) async {
-    Product product = Product(
+    final Product product = Product(
       artNo: cart.cddArtNo,
       artNom: cart.cddArtNom,
       artFam: cart.cddArtFam,
@@ -156,19 +166,9 @@ class CartController extends GetxController {
       artImages: cart.cddImages,
     );
 
-    final bool? result = await Get.to<bool?>(() => ProductDetails(), arguments: {"product": product, "fromcart": true});
+    final bool? result = await Get.toNamed<bool?>(AppRoute.productdetails, arguments: {"product": product, "fromcart": true});
     if (result == true) {
-      view();
+      await view();
     }
-  }
-
-  Future<Product?> getdartbyid(int productsid) async {
-    return null;
-  }
-
-  @override
-  void onInit() {
-    view();
-    super.onInit();
   }
 }

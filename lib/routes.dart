@@ -47,7 +47,11 @@ final List<GetPage<dynamic>> routes = [
   GetPage(name: AppRoute.languagechange, page: () => Languagechange()),
 
   /// Splash Screen
-  GetPage(name: AppRoute.splachscreen, page: () => const Splachscreen()),
+  GetPage(
+    name: AppRoute.splachscreen,
+    page: () => const Splachscreen(),
+    binding: BindingsBuilder(() => Get.lazyPut(() => Splachscreencontroller())),
+  ),
 
   /// Company Selection
   GetPage(name: AppRoute.company, page: () => const CompanyPage(), binding: CompanyBinding()),

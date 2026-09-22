@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:softel/controller/auth/company_controller.dart';
 import 'package:softel/core/class/crud.dart';
 import 'package:softel/core/constant/color.dart';
 import 'package:softel/core/constant/routesstr.dart';
@@ -16,20 +15,22 @@ class LoginController extends GetxController {
   final Crud crud = Crud();
   final Dialogfun dialogfun = Dialogfun();
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
-  final CompanyController companyController = Get.find<CompanyController>();
-  final MyServices myServices = Get.find();
+  final MyServices myServices = Get.find<MyServices>();
 
   String? googleId;
   String? email;
   String? name;
   String? photoUrl;
   Company? company;
-  bool isLoading = false;
+  final RxBool isLoading = false.obs;
 
   @override
   void onInit() {
     super.onInit();
-    company = companyController.selectedCompany;
+    final args = Get.arguments;
+    if (args is Map && args['company'] is Company) {
+      company = args['company'] as Company;
+    }
   }
 
   final GoogleSignIn signIn = GoogleSignIn();
@@ -66,8 +67,7 @@ class LoginController extends GetxController {
   /// Login to backend using Google ID.
   Future<void> login() async {
     try {
-      isLoading = true;
-      update();
+      isLoading.value = true;
 
       final response = await crud.post(AppLink.login, {
         'ClsNo': company?.clsNo,
@@ -104,8 +104,7 @@ class LoginController extends GetxController {
     } catch (e) {
       dialogfun.showSnackError('error'.tr, e.toString());
     } finally {
-      isLoading = false;
-      update();
+      isLoading.value = false;
     }
   }
 }

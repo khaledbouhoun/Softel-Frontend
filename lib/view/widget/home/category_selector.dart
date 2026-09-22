@@ -1,26 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
-import 'package:softel/controller/home/home_controller.dart';
 import 'package:softel/core/constant/color.dart';
 import 'package:softel/data/model/familles.dart';
 
 class FamilleSelector extends StatelessWidget {
   final List<FamilleItem> famillesItems;
-  final Familles? selectedFamille;
-  final void Function(Familles famille)? onSelectFamille;
+  final Familles selectedFamille;
+  final void Function(Familles famille) onSelectFamille;
 
   const FamilleSelector({
     super.key,
     required this.famillesItems,
-    this.selectedFamille,
-    this.onSelectFamille,
+    required this.selectedFamille,
+    required this.onSelectFamille,
   });
 
   @override
   Widget build(BuildContext context) {
-    final currentSelectedId = selectedFamille?.famNo ??
-        (Get.isRegistered<HomeController>() ? Get.find<HomeController>().selectedFamille.value.famNo : null);
+    final currentSelectedId = selectedFamille.famNo;
 
     return SizedBox(
       height: 60,
@@ -34,13 +31,7 @@ class FamilleSelector extends StatelessWidget {
           final isSelected = currentSelectedId == item.famille.famNo;
 
           return GestureDetector(
-            onTap: () {
-              if (onSelectFamille != null) {
-                onSelectFamille!(item.famille);
-              } else if (Get.isRegistered<HomeController>()) {
-                Get.find<HomeController>().selectFamille(item.famille);
-              }
-            },
+            onTap: () => onSelectFamille(item.famille),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
               decoration: BoxDecoration(

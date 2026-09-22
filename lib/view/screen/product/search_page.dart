@@ -1,22 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:softel/controller/home/home_controller.dart';
 import 'package:softel/controller/search/search_controller.dart';
 import 'package:softel/core/constant/color.dart';
+import 'package:softel/core/constant/routesstr.dart';
 import 'package:softel/view/widget/backwidget.dart';
 import 'package:softel/view/widget/home/product_grid.dart';
 import 'package:softel/view/widget/loadingwidget.dart';
 
-class SearchPage extends StatefulWidget {
+class SearchPage extends GetView<SearchsController> {
   const SearchPage({super.key});
-
-  @override
-  State<SearchPage> createState() => _SearchPageState();
-}
-
-class _SearchPageState extends State<SearchPage> {
-  late final SearchsController controller = Get.put(SearchsController());
-  final HomeController homeController = Get.find<HomeController>();
 
   @override
   Widget build(BuildContext context) {
@@ -249,28 +241,28 @@ class _SearchPageState extends State<SearchPage> {
           Expanded(
             child: ProductGrid(
               physics: const AlwaysScrollableScrollPhysics(),
-              products: controller.filteredProducts,
-              isloadingProducts: controller.isLoading,
+              products: controller.filteredProducts.toList(),
+              isLoadingProducts: controller.isLoading.value,
               scrollercontroller: controller.scrollController,
               enableScroll: true,
               onTap: (index) {
                 if (index < controller.filteredProducts.length) {
-                  homeController.goToPageProductDetails(controller.filteredProducts[index]);
+                  Get.toNamed(
+                    AppRoute.productdetails,
+                    arguments: {
+                      'product': controller.filteredProducts[index],
+                      'fromcart': false,
+                    },
+                  );
                 }
               },
             ),
           ),
           // Loading more indicator
-          if (controller.isLoadingMore.value) Padding(padding: const EdgeInsets.all(16), child: Loadingwidget(width: 50)),
+          if (controller.isLoadingMore.value) const Padding(padding: EdgeInsets.all(16), child: Loadingwidget(width: 50)),
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    controller.disposeSearch();
-    super.dispose();
   }
 }
 

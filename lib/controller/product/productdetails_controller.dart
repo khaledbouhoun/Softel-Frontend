@@ -1,151 +1,330 @@
-import 'package:softel/controller/cart/cart_controller.dart';
+import 'dart:core';
+
+import 'package:get/get.dart';
 import 'package:softel/core/class/crud.dart';
+import 'package:softel/core/services/cart_state_service.dart';
 import 'package:softel/core/services/services.dart';
 import 'package:softel/data/model/cart.dart';
 import 'package:softel/data/model/product.dart';
-import 'package:get/get.dart';
 import 'package:softel/linkapi.dart';
 import 'package:softel/view/widget/dialog.dart';
 
 class ProductDetailsController extends GetxController {
-  MyServices myServices = Get.find();
-  CartController cartController = Get.put(CartController());
+  // ---------------------------------------------------------------------------
+  // Dependencies
+  // ---------------------------------------------------------------------------
 
-  Crud crud = Crud();
-  Dialogfun dialogfun = Dialogfun();
+  final MyServices myServices = Get.find<MyServices>();
+  final CartStateService cartStateService = Get.find<CartStateService>();
+
+  final Crud crud = Crud();
+  final Dialogfun dialogfun = Dialogfun();
+
+  // ---------------------------------------------------------------------------
+  // Product
+  // ---------------------------------------------------------------------------
+
   late Product product;
-  bool isUnitSelected = true;
-  bool confirm = false;
-  RxDouble totalprice = 0.0.obs;
-  RxDouble qtyinput = 0.0.obs;
-  RxDouble coulis = 0.0.obs;
-  RxDouble unites = 0.0.obs;
+
+  // ---------------------------------------------------------------------------
+  // State
+  // ---------------------------------------------------------------------------
+
+  /// True when the product is being handled through the cart screen.
   bool fromcart = false;
-  RxBool isloading = false.obs;
+
+  /// True when a request is currently running.
+  final RxBool isloading = false.obs;
+
+  /// Selected unit type.
+  ///
+  /// true  -> colis/unit mode
+  /// false -> individual units mode
+  final RxBool isUnitSelected = true.obs;
+
+  // ---------------------------------------------------------------------------
+  // Quantity / Price
+  // ---------------------------------------------------------------------------
+
+  final RxDouble totalprice = 0.0.obs;
+  final RxDouble qtyinput = 0.0.obs;
+  final RxDouble coulis = 0.0.obs;
+  final RxDouble unites = 0.0.obs;
+
+  // ---------------------------------------------------------------------------
+  // Other
+  // ---------------------------------------------------------------------------
+
+  bool confirm = false;
+
   late String usersid;
+
+  // ---------------------------------------------------------------------------
+  // Lifecycle
+  // ---------------------------------------------------------------------------
+
   @override
   void onInit() {
-    intialData();
     super.onInit();
+    _initializeData();
   }
 
-  Future<void> intialData() async {
-    usersid = myServices.sharedPreferences.getString("id").toString();
-    product = Get.arguments['product'] as Product;
-    print("productno: ${product.artNo}");
-    print("productnom: ${product.artNom}");
-    print("productfam: ${product.artFam}");
-    print("productsfam: ${product.artSFam}");
-    print("productcddColisage: ${product.artColisage}");
-    print("productcddColisage: ${product.artColisageNom}");
-    print("productsuni: ${product.artUni}");
-    print("productartUntCol: ${product.artUntCol}");
-    print("productartPrix: ${product.artPrix}");
-    print("productqte: ${product.artQte}");
+  // ---------------------------------------------------------------------------
+  // Initialization
+  // ---------------------------------------------------------------------------
 
-    fromcart = Get.arguments['fromcart'] as bool;
+  void _initializeData() {
+    usersid = myServices.sharedPreferences.getString('id')?.toString() ?? '';
+
+    final arguments = Get.arguments;
+
+    if (arguments is Map && arguments['product'] is Product) {
+      product = arguments['product'] as Product;
+    } else {
+      product = Product();
+    }
+
+    fromcart = arguments is Map && arguments['fromcart'] == true;
+
     qtyinput.value = product.artQte ?? 0.0;
-    calculate();
 
-    update();
+    calculate();
   }
+
+  // ---------------------------------------------------------------------------
+  // Add / Update Product
+  // ---------------------------------------------------------------------------
 
   Future<void> storeCommand() async {
-    isloading.value = true;
-    print("product: ${product.artNo}");
-    var data = {
-      "CddArt": product.artNo,
-      "CddColisage": "01",
-      "CddColis": (product.artColisageNom ?? '').isNotEmpty ? (isUnitSelected ? coulis.value : qtyinput.value) : 0,
-      "CddUntCol": (product.artColisageNom ?? '').isNotEmpty ? (product.artUntCol ?? 0) : 0,
-      "CddQte": isUnitSelected ? qtyinput.value : unites.value,
-      "CddPrix": product.artPrix ?? 0,
-      "CddMontant": totalprice.value,
-    };
-    print("data: $data");
-    var response = await crud.post(AppLink.storeProduct, data);
-    print('Response: ${response.statusCode}');
-    print('Response: ${response.body}');
+    if (isloading.value) return;
 
-    if (response.statusCode == 201) {
-      isloading.value = false;
-      if (fromcart) {
-        Get.back(result: true);
-      } else {
-        Get.back(result: isUnitSelected ? qtyinput.value : unites.value);
+    isloading.value = true;
+
+    try {
+      final data = _buildStoreCommandData();
+
+      final response = await crud.post(AppLink.storeProduct, data);
+
+      if (response.statusCode == 201) {
+        final quantity = _selectedQuantity;
+
+        // Stop loading before leaving the page.
+        isloading.value = false;
+
+        // Return the quantity to Home immediately.
+        _closeWithResult(quantity);
+
+        // Refresh cart count without blocking navigation.
+        cartStateService.fetchCartCount();
+
+        return;
       }
-      dialogfun.showSnackSuccess("success".tr, "successfully_added".tr);
-    } else if (response.statusCode == 422) {
+
+      if (response.statusCode == 422) {
+        _handleValidationError(response);
+        return;
+      }
+
+      _showGenericError();
+    } catch (e) {
+      _showGenericError();
+    } finally {
       isloading.value = false;
-      String errorMsg = '';
-      Map<String, dynamic> errors = response.body['errors'];
-      errors.forEach((key, value) {
-        errorMsg += '${value.join(', ')}\n';
-      });
-      dialogfun.showSnackError("something_went_wrong".tr, errorMsg);
-    } else {
-      isloading.value = false;
-      dialogfun.showSnackError("error".tr, "something_went_wrong".tr);
     }
   }
+  // ---------------------------------------------------------------------------
+  // Delete Product From Cart
+  // ---------------------------------------------------------------------------
 
   Future<void> deletefromcart() async {
+    if (isloading.value) return;
+
     isloading.value = true;
 
-    cartController.view();
-    CartModel cart = cartController.data.firstWhere((c) => c.cddArtNo == product.artNo);
-    var response = await crud.delete(AppLink.deleteCart, {"CddID": cart.cddID, "CddArtNo": cart.cddArtNo});
-    if (response.statusCode == 200) {
-      isloading.value = false;
-      if (fromcart) {
-        Get.back(result: true);
-      } else {
-        Get.back(result: isUnitSelected ? qtyinput.value : unites.value);
+    try {
+      final cartItem = await _findCartItem();
+
+      if (cartItem == null) {
+        _showGenericError();
+        return;
       }
-      dialogfun.showSnackSuccess("success".tr, "successfully_removed".tr);
-    } else {
+
+      final response = await crud.delete(AppLink.deleteCart, {'CddID': cartItem.cddID, 'CddArtNo': cartItem.cddArtNo});
+
+      if (response.statusCode == 200) {
+        await _refreshCartCount();
+
+        // 0 means that the product is no longer in the cart.
+        _closeWithResult(0.0);
+
+        return;
+      }
+
+      _showGenericError();
+    } catch (e) {
+      _showGenericError();
+    } finally {
       isloading.value = false;
-      dialogfun.showSnackError("error".tr, response.body['message']);
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Build Store Request
+  // ---------------------------------------------------------------------------
+
+  Map<String, dynamic> _buildStoreCommandData() {
+    final hasPackaging = (product.artColisageNom ?? '').isNotEmpty;
+
+    final quantity = _selectedQuantity;
+
+    return {
+      'CddArt': product.artNo,
+      'CddColisage': '01',
+
+      'CddColis': hasPackaging ? (isUnitSelected.value ? coulis.value : qtyinput.value) : 0,
+
+      'CddUntCol': hasPackaging ? (product.artUntCol ?? 0) : 0,
+
+      'CddQte': quantity,
+
+      'CddPrix': product.artPrix ?? 0,
+
+      'CddMontant': totalprice.value,
+    };
+  }
+
+  // ---------------------------------------------------------------------------
+  // Cart
+  // ---------------------------------------------------------------------------
+
+  Future<CartModel?> _findCartItem() async {
+    final response = await crud.get(AppLink.cart);
+
+    if (response.statusCode != 200 || response.body is! List) {
+      return null;
+    }
+
+    final items = (response.body as List).map((item) => CartModel.fromJson(item)).toList();
+
+    return items.firstWhereOrNull((item) => item.cddArtNo == product.artNo);
+  }
+
+  Future<void> _refreshCartCount() async {
+    await cartStateService.fetchCartCount();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Navigation Result
+  // ---------------------------------------------------------------------------
+
+  double get _selectedQuantity {
+    return isUnitSelected.value ? qtyinput.value : unites.value;
+  }
+
+  void _closeWithResult(double result) {
+    if (fromcart) {
+      Get.back(result: true);
+    } else {
+      Get.back(result: result);
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Error Handling
+  // ---------------------------------------------------------------------------
+
+  void _handleValidationError(dynamic response) {
+    String errorMessage = '';
+
+    if (response.body is Map && response.body['errors'] is Map) {
+      final Map<String, dynamic> errors = Map<String, dynamic>.from(response.body['errors']);
+
+      for (final entry in errors.entries) {
+        final value = entry.value;
+
+        if (value is List) {
+          errorMessage += '${value.join(', ')}\n';
+        } else {
+          errorMessage += '$value\n';
+        }
+      }
+    }
+
+    if (errorMessage.trim().isEmpty) {
+      errorMessage = 'something_went_wrong'.tr;
+    }
+
+    dialogfun.showSnackError('something_went_wrong'.tr, errorMessage.trim());
+  }
+
+  void _showGenericError() {
+    dialogfun.showSnackError('error'.tr, 'something_went_wrong'.tr);
+  }
+
+  void _showSuccessMessage(String message) {
+    dialogfun.showSnackSuccess('success'.tr, message);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Unit Type
+  // ---------------------------------------------------------------------------
+
   void toggleUnitType(int index) {
-    isUnitSelected = index == 0;
-    if (isUnitSelected) {
+    isUnitSelected.value = index == 0;
+
+    if (isUnitSelected.value) {
       coulis.value = qtyinput.value;
       qtyinput.value = unites.value;
       unites.value = 0.0;
-      totalprice.value = qtyinput.value * (product.artPrix ?? 0);
     } else {
       qtyinput.value = coulis.value;
-      unites.value = (product.artUntCol ?? 0) > 1 ? qtyinput.value * (product.artUntCol ?? 0) : unites.value;
-      totalprice.value = unites.value * (product.artPrix ?? 0);
+
+      final unitsPerColis = product.artUntCol ?? 0;
+
+      unites.value = unitsPerColis > 1 ? qtyinput.value * unitsPerColis : unites.value;
     }
-    // qtyinput.value = 0.0;
-    // totalprice.value = 0.0;
-    // unites.value = 0.0;
-    // coulis.value = 0.0;
-    update();
+
+    calculate();
   }
 
+  // ---------------------------------------------------------------------------
+  // Price / Quantity Calculation
+  // ---------------------------------------------------------------------------
+
   void calculate() {
-    if ((product.artColisageNom ?? '').isNotEmpty) {
-      coulis.value = (product.artUntCol ?? 1) != 0 ? (qtyinput.value ~/ (product.artUntCol ?? 1)).toDouble() : 0.0;
-      if (isUnitSelected) {
-        unites.value = (product.artUntCol ?? 1) != 0 ? qtyinput.value % (product.artUntCol ?? 1) : 0.0;
+    final hasPackaging = (product.artColisageNom ?? '').isNotEmpty;
+
+    final unitsPerColis = product.artUntCol ?? 1;
+
+    if (hasPackaging) {
+      if (unitsPerColis != 0) {
+        coulis.value = (qtyinput.value ~/ unitsPerColis).toDouble();
+      } else {
+        coulis.value = 0.0;
+      }
+
+      if (isUnitSelected.value) {
+        if (unitsPerColis != 0) {
+          unites.value = qtyinput.value % unitsPerColis;
+        } else {
+          unites.value = 0.0;
+        }
       } else {
         unites.value = qtyinput.value * (product.artUntCol ?? 0);
       }
     }
 
-    if (isUnitSelected) {
+    if (isUnitSelected.value) {
       totalprice.value = qtyinput.value * (product.artPrix ?? 0);
     } else {
       totalprice.value = unites.value * (product.artPrix ?? 0);
     }
   }
 
-  // --- Quantity Increment/Decrement ---
+  // ---------------------------------------------------------------------------
+  // Quantity Controls
+  // ---------------------------------------------------------------------------
+
   void incrementQty() {
     qtyinput.value++;
     calculate();
@@ -155,18 +334,23 @@ class ProductDetailsController extends GetxController {
     if (qtyinput.value > 0) {
       qtyinput.value--;
     }
+
     calculate();
   }
 
   void decrementQtyHold() {
-    if (qtyinput.value > 0) {
-      qtyinput.value = 1;
-      totalprice.value = qtyinput.value * (product.artPrix ?? 0);
-      if ((product.artColisageNom ?? '').isNotEmpty) {
-        coulis.value = (product.artUntCol ?? 1) != 0 ? (qtyinput.value ~/ (product.artUntCol ?? 1)).toDouble() : 0.0;
-        unites.value = (product.artUntCol ?? 1) != 0 ? qtyinput.value % (product.artUntCol ?? 1) : 0.0;
-      }
+    if (qtyinput.value <= 0) return;
+
+    qtyinput.value = 1;
+
+    if ((product.artColisageNom ?? '').isNotEmpty) {
+      final unitsPerColis = product.artUntCol ?? 1;
+
+      coulis.value = unitsPerColis != 0 ? (qtyinput.value ~/ unitsPerColis).toDouble() : 0.0;
+
+      unites.value = unitsPerColis != 0 ? qtyinput.value % unitsPerColis : 0.0;
     }
-    print("totalprice: ${totalprice.value}");
+
+    calculate();
   }
 }

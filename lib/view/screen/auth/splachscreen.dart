@@ -4,18 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart'; // استيراد GetX
 import 'package:lottie/lottie.dart';
 
-class Splachscreen extends StatelessWidget {
+class Splachscreen extends GetView<Splachscreencontroller> {
   const Splachscreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<Splachscreencontroller>(
-      init: Splachscreencontroller(),
-      builder: (controller) => Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(
-          child: LottieBuilder.asset('assets/lottie/mercerie.json', width: Get.width * 0.9, fit: BoxFit.cover),
-        ),
+    // Controller is initialized via binding and triggers navigation in onInit()
+    controller;
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: LottieBuilder.asset('assets/lottie/mercerie.json', width: Get.width * 0.9, fit: BoxFit.cover),
       ),
     );
   }

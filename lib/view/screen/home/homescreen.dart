@@ -14,9 +14,11 @@ class HomeScreen extends GetView<HomeScreenController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Center(
-
-        child: GetBuilder<HomeScreenController>(builder: (controller) => controller.listPage.elementAt(controller.initialTab)),
+      body: Obx(
+        () => IndexedStack(
+          index: controller.initialTab.value,
+          children: controller.listPage,
+        ),
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -26,67 +28,73 @@ class HomeScreen extends GetView<HomeScreenController> {
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8),
-            child: GNav(
-              rippleColor: Colors.grey[300]!,
-              hoverColor: Colors.grey[100]!,
-              gap: 8,
-              activeColor: Colors.black,
-              iconSize: 24,
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              duration: Duration(milliseconds: 400),
-              tabBackgroundColor: Colors.grey[100]!,
-              color: Colors.black,
-              tabs: [
-                // Home Tab
-                GButton(
-                  icon: Icons.home,
-                  text: 'home'.tr,
-                  textColor: AppColor.primaryColor,
-                  textSize: 15,
-                  activeBorder: Border.all(color: AppColor.primaryColor),
-                  leading: SvgPicture.asset(controller.initialTab == 0 ? AppSvg.home2 : AppSvg.homee, color: AppColor.primaryColor),
-                ),
-
-                // Families Tab
-                GButton(
-                  icon: Icons.category,
-                  text: 'familles'.tr,
-                  textColor: AppColor.primaryColor,
-                  textSize: 15,
-                  activeBorder: Border.all(color: AppColor.primaryColor),
-                  leading: SvgPicture.asset(
-                    controller.initialTab == 1 ? AppSvg.widget2 : AppSvg.widget2Filled,
-                    color: AppColor.primaryColor,
+            child: Obx(
+              () => GNav(
+                rippleColor: Colors.grey[300]!,
+                hoverColor: Colors.grey[100]!,
+                gap: 8,
+                activeColor: Colors.black,
+                iconSize: 24,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                duration: const Duration(milliseconds: 400),
+                tabBackgroundColor: Colors.grey[100]!,
+                color: Colors.black,
+                tabs: [
+                  // Home Tab
+                  GButton(
+                    icon: Icons.home,
+                    text: 'home'.tr,
+                    textColor: AppColor.primaryColor,
+                    textSize: 15,
+                    activeBorder: Border.all(color: AppColor.primaryColor),
+                    leading: SvgPicture.asset(
+                      controller.initialTab.value == 0 ? AppSvg.home2 : AppSvg.homee,
+                      colorFilter: ColorFilter.mode(AppColor.primaryColor, BlendMode.srcIn),
+                    ),
                   ),
-                ),
 
-                // Orders Tab
-                GButton(
-                  icon: Icons.spatial_tracking,
-                  text: 'orders'.tr,
-                  textColor: AppColor.primaryColor,
-                  textSize: 15,
-                  activeBorder: Border.all(color: AppColor.primaryColor),
-                  leading: SvgPicture.asset(
-                    controller.initialTab == 2 ? AppSvg.documentfilled : AppSvg.document,
-                    color: AppColor.primaryColor,
+                  // Families Tab
+                  GButton(
+                    icon: Icons.category,
+                    text: 'familles'.tr,
+                    textColor: AppColor.primaryColor,
+                    textSize: 15,
+                    activeBorder: Border.all(color: AppColor.primaryColor),
+                    leading: SvgPicture.asset(
+                      controller.initialTab.value == 1 ? AppSvg.widget2 : AppSvg.widget2Filled,
+                      colorFilter: ColorFilter.mode(AppColor.primaryColor, BlendMode.srcIn),
+                    ),
                   ),
-                ),
 
-                // Settings Tab
-                GButton(
-                  icon: Icons.person,
-                  text: 'setting'.tr,
-                  textColor: AppColor.primaryColor,
-                  textSize: 15,
-                  activeBorder: Border.all(color: AppColor.primaryColor),
-                  leading: SvgPicture.asset(controller.initialTab == 3 ? AppSvg.user2 : AppSvg.user, color: AppColor.primaryColor),
-                ),
-              ],
-              selectedIndex: controller.initialTab,
-              onTabChange: (index) {
-                controller.changeTab(index);
-              },
+                  // Orders Tab
+                  GButton(
+                    icon: Icons.spatial_tracking,
+                    text: 'orders'.tr,
+                    textColor: AppColor.primaryColor,
+                    textSize: 15,
+                    activeBorder: Border.all(color: AppColor.primaryColor),
+                    leading: SvgPicture.asset(
+                      controller.initialTab.value == 2 ? AppSvg.documentfilled : AppSvg.document,
+                      colorFilter: ColorFilter.mode(AppColor.primaryColor, BlendMode.srcIn),
+                    ),
+                  ),
+
+                  // Settings Tab
+                  GButton(
+                    icon: Icons.person,
+                    text: 'setting'.tr,
+                    textColor: AppColor.primaryColor,
+                    textSize: 15,
+                    activeBorder: Border.all(color: AppColor.primaryColor),
+                    leading: SvgPicture.asset(
+                      controller.initialTab.value == 3 ? AppSvg.user2 : AppSvg.user,
+                      colorFilter: ColorFilter.mode(AppColor.primaryColor, BlendMode.srcIn),
+                    ),
+                  ),
+                ],
+                selectedIndex: controller.initialTab.value,
+                onTabChange: controller.changeTab,
+              ),
             ),
           ),
         ),

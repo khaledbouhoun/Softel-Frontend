@@ -9,7 +9,7 @@ import 'package:get/get.dart';
 import 'package:softel/view/widget/loadingwidget.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 
-class Traking extends StatelessWidget {
+class Traking extends GetView<TrakingController> {
   const Traking({super.key});
 
   @override
@@ -27,9 +27,11 @@ class Traking extends StatelessWidget {
         iconTheme: IconThemeData(color: AppColor.primaryColor),
       ),
       backgroundColor: AppColor.background,
-      body: GetBuilder<TrakingController>(
-        init: TrakingController(),
-        builder: (controller) {
+      body: RefreshIndicator(
+        color: AppColor.primaryColor,
+        onRefresh: controller.fetch,
+        child: Obx(
+          () {
           if (controller.isloading.value) {
             return Center(child: Loadingwidget(width: Get.width / 2));
           } else {
@@ -220,11 +222,12 @@ class Traking extends StatelessWidget {
           );
         },
       ),
-    );
+    ),
+  );
   }
 }
 
-class TrakingDetails extends StatelessWidget {
+class TrakingDetails extends GetView<TrakingControllerDetails> {
   const TrakingDetails({super.key});
 
   @override
@@ -242,108 +245,98 @@ class TrakingDetails extends StatelessWidget {
         centerTitle: true,
         leading: Backwidget(),
       ),
-      body: GetBuilder<TrakingControllerDetails>(
-        init: TrakingControllerDetails(),
-        builder: (controller) {
-          return Container(
-            decoration: BoxDecoration(color: Colors.white),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 20),
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                    itemCount: controller.trackingSteps.length,
-                    itemBuilder: (context, index) {
-                      final step = controller.trackingSteps[index];
-                      final stepbefor = controller.trackingSteps[(index - 1) < 0 ? 0 : (index - 1)];
-                      final isFirst = index == 0;
-                      final isLast = index == controller.trackingSteps.length - 1;
+      body: Container(
+        decoration: const BoxDecoration(color: Colors.white),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 20),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                itemCount: controller.trackingSteps.length,
+                itemBuilder: (context, index) {
+                  final step = controller.trackingSteps[index];
+                  final stepbefor = controller.trackingSteps[(index - 1) < 0 ? 0 : (index - 1)];
+                  final isFirst = index == 0;
+                  final isLast = index == controller.trackingSteps.length - 1;
 
-                      return TimelineTile(
-                        alignment: TimelineAlign.manual,
-                        lineXY: 0.2,
-                        isFirst: isFirst,
-                        isLast: isLast,
-                        beforeLineStyle: LineStyle(
-                          color: stepbefor.isCompleted ? AppColor.primaryColor : Colors.grey.shade200,
-                          thickness: 3,
-                        ),
-                        afterLineStyle: LineStyle(color: step.isCompleted ? AppColor.primaryColor : Colors.grey.shade200, thickness: 3),
-                        indicatorStyle: IndicatorStyle(
-                          width: 35,
-                          height: 35,
-                          indicator: Container(
-                            decoration: BoxDecoration(
-                              boxShadow: step.isCurrent
-                                  ? [BoxShadow(blurRadius: 15, spreadRadius: 5, color: AppColor.primaryColor.withOpacity(0.2))]
-                                  : [],
-                              shape: BoxShape.circle,
-                              color: step.isCompleted || step.isCurrent ? AppColor.primaryColor : Colors.white,
-                              border: Border.all(
-                                color: step.isCompleted || step.isCurrent ? AppColor.primaryColor : Colors.grey.shade300,
-                                width: 2,
-                              ),
-                            ),
-                            child: Center(
-                              child: SvgPicture.asset(
-                                step.isCompleted ? AppSvg.check : (step.isCurrent ? AppSvg.truck : AppSvg.circle),
-                                color: step.isCompleted || step.isCurrent ? Colors.white : Colors.grey.shade300,
-                                width: 20,
-                                height: 20,
-                              ),
-                              // child: Icon(
-                              //   step.isCompleted ? Icons.check_rounded : (step.isCurrent ? Icons.local_shipping_rounded : Icons.circle),
-                              //   color: step.isCompleted || step.isCurrent ? Colors.white : Colors.grey.shade300,
-                              //   size: step.isCompleted ? 20 : 18,
-                              // ),
-                            ),
+                  return TimelineTile(
+                    alignment: TimelineAlign.manual,
+                    lineXY: 0.2,
+                    isFirst: isFirst,
+                    isLast: isLast,
+                    beforeLineStyle: LineStyle(
+                      color: stepbefor.isCompleted ? AppColor.primaryColor : Colors.grey.shade200,
+                      thickness: 3,
+                    ),
+                    afterLineStyle: LineStyle(color: step.isCompleted ? AppColor.primaryColor : Colors.grey.shade200, thickness: 3),
+                    indicatorStyle: IndicatorStyle(
+                      width: 35,
+                      height: 35,
+                      indicator: Container(
+                        decoration: BoxDecoration(
+                          boxShadow: step.isCurrent
+                              ? [BoxShadow(blurRadius: 15, spreadRadius: 5, color: AppColor.primaryColor.withOpacity(0.2))]
+                              : [],
+                          shape: BoxShape.circle,
+                          color: step.isCompleted || step.isCurrent ? AppColor.primaryColor : Colors.white,
+                          border: Border.all(
+                            color: step.isCompleted || step.isCurrent ? AppColor.primaryColor : Colors.grey.shade300,
+                            width: 2,
                           ),
                         ),
-                        endChild: Container(
-                          margin: const EdgeInsets.only(left: 20, bottom: 30),
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: step.isCompleted || step.isCurrent ? step.color!.withOpacity(0.05) : Colors.grey.shade50,
-                            borderRadius: BorderRadius.circular(15),
-                            border: Border.all(
-                              color: step.isCompleted || step.isCurrent ? step.color!.withOpacity(0.2) : Colors.grey.shade200,
-                              width: 1,
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                step.title,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: step.isCompleted || step.isCurrent ? step.color! : Colors.grey.shade600,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                step.subtitle,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: step.isCompleted || step.isCurrent ? step.color!.withOpacity(0.7) : Colors.grey.shade500,
-                                ),
-                              ),
-                            ],
+                        child: Center(
+                          child: SvgPicture.asset(
+                            step.isCompleted ? AppSvg.check : (step.isCurrent ? AppSvg.truck : AppSvg.circle),
+                            color: step.isCompleted || step.isCurrent ? Colors.white : Colors.grey.shade300,
+                            width: 20,
+                            height: 20,
                           ),
                         ),
-                      );
-                    },
-                  ),
-                ),
-              ],
+                      ),
+                    ),
+                    endChild: Container(
+                      margin: const EdgeInsets.only(left: 20, bottom: 30),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: step.isCompleted || step.isCurrent ? step.color!.withOpacity(0.05) : Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(
+                          color: step.isCompleted || step.isCurrent ? step.color!.withOpacity(0.2) : Colors.grey.shade200,
+                          width: 1,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            step.title,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: step.isCompleted || step.isCurrent ? step.color! : Colors.grey.shade600,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            step.subtitle,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: step.isCompleted || step.isCurrent ? step.color!.withOpacity(0.7) : Colors.grey.shade500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }

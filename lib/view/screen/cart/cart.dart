@@ -7,14 +7,11 @@ import 'package:get/get.dart';
 import 'package:softel/view/widget/cart/customitemscartlist.dart';
 import 'package:softel/view/widget/loadingwidget.dart';
 
-class Cart extends StatelessWidget {
+class Cart extends GetView<CartController> {
   const Cart({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Only initialize ONCE, not both here and in GetBuilder
-    // Get.put(CartController()); // <-- Remove this if you use 'init' in GetBuilder
-
     return SafeArea(
       top: false,
       child: Scaffold(
@@ -28,44 +25,49 @@ class Cart extends StatelessWidget {
           ),
           centerTitle: true,
           scrolledUnderElevation: 0,
-          leading: Backwidget(),
+          leading: const Backwidget(),
           toolbarHeight: 80,
         ),
-        bottomNavigationBar: GetBuilder<CartController>(
-          builder: (controller) => BottomNavgationBarCart(totalprice: controller.totalprice()),
+        bottomNavigationBar: Obx(
+          () => BottomNavgationBarCart(totalprice: controller.totalprice()),
         ),
-        body: GetBuilder<CartController>(
-          init: CartController(),
-          builder: (controller) => controller.isloading.value
-              ? Center(child: Loadingwidget(width: Get.width / 2))
-              : controller.data.isNotEmpty
-              ? SingleChildScrollView(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        ...List.generate(
-                          controller.data.length,
-                          (index) => GlassmorphismCartItem(
-                            cart: controller.data[index],
-                            imagename: '',
-                            onRemove: () async {
-                              await controller.delete(context, controller.data[index]);
-                            },
-                            onPressed: () async {
-                              await controller.edit(controller.data[index]);
-                            },
-                          ),
-                        ),
-                      ],
+        body: RefreshIndicator(
+          color: AppColor.primaryColor,
+          onRefresh: controller.view,
+          child: Obx(
+            () {
+              if (controller.isloading.value && controller.data.isEmpty) {
+                return Center(child: Loadingwidget(width: Get.width / 2));
+              }
+              if (controller.data.isEmpty) {
+                return ListView(
+                  children: [
+                    SizedBox(height: Get.height * 0.3),
+                    Center(
+                      child: Text("cart_empty".tr, style: const TextStyle(fontSize: 18, color: Colors.grey)),
                     ),
-                  ),
-                )
-              : Center(
-                  child: Text("cart_empty".tr, style: TextStyle(fontSize: 18, color: Colors.grey)),
-                ),
+                  ],
+                );
+              }
+              return ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                itemCount: controller.data.length,
+                itemBuilder: (context, index) {
+                  return GlassmorphismCartItem(
+                    cart: controller.data[index],
+                    imagename: '',
+                    onRemove: () async {
+                      await controller.delete(context, controller.data[index]);
+                    },
+                    onPressed: () async {
+                      await controller.edit(controller.data[index]);
+                    },
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );

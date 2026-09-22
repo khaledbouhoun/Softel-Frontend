@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:softel/controller/home/home_controller.dart';
 import 'package:softel/core/constant/color.dart';
 import 'package:softel/core/constant/imageasset.dart';
-import 'package:softel/view/screen/product/search_page.dart';
+import 'package:softel/core/constant/routesstr.dart';
 import 'package:softel/view/widget/home/category_selector.dart';
 import 'package:softel/view/widget/home/customcardhome.dart';
 import 'package:softel/view/widget/home/product_grid.dart';
@@ -27,14 +27,7 @@ class HomePage extends GetView<HomeController> {
             controller: controller.scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
             padding: EdgeInsets.zero,
-            children: [
-              _buildTopBar(),
-              _buildBanners(),
-              _buildSearch(),
-              _buildCategories(),
-              _buildProducts(),
-              const SizedBox(height: 30),
-            ],
+            children: [_buildTopBar(), _buildBanners(), _buildSearch(), _buildCategories(), _buildProducts(), const SizedBox(height: 30)],
           ),
         ),
       ),
@@ -48,11 +41,7 @@ class HomePage extends GetView<HomeController> {
   Future<void> _refresh() async {
     controller.resetSelectedFamille();
 
-    await Future.wait([
-      controller.fetchBanners(),
-      controller.fetchFamilles(),
-      controller.fetchCartCount(),
-    ]);
+    await Future.wait([controller.fetchBanners(), controller.fetchFamilles(), controller.fetchCartCount()]);
 
     await controller.fetchProducts(reset: true);
   }
@@ -62,12 +51,7 @@ class HomePage extends GetView<HomeController> {
   // ===========================================================================
 
   Widget _buildTopBar() {
-    return Obx(
-      () => TopBar(
-        logoUrl: controller.logoUrl.value,
-        cartCount: controller.cartCount.value,
-      ),
-    );
+    return Obx(() => TopBar(logoUrl: controller.logoUrl.value, cartCount: controller.cartCount.value));
   }
 
   // ===========================================================================
@@ -75,12 +59,7 @@ class HomePage extends GetView<HomeController> {
   // ===========================================================================
 
   Widget _buildBanners() {
-    return Obx(
-      () => CustomCardHome(
-        images: controller.banners,
-        isLoading: controller.isLoadingBanners.value,
-      ),
-    );
+    return Obx(() => CustomCardHome(images: controller.banners.toList(), isLoading: controller.isLoadingBanners.value));
   }
 
   // ===========================================================================
@@ -148,7 +127,7 @@ class HomePage extends GetView<HomeController> {
   }
 
   void _openSearchPage() {
-    Get.to(() => const SearchPage());
+    Get.toNamed(AppRoute.search);
   }
 
   // ===========================================================================
@@ -165,7 +144,7 @@ class HomePage extends GetView<HomeController> {
 
         Obx(
           () => FamilleSelector(
-            famillesItems: controller.familleItems,
+            famillesItems: controller.familleItems.toList(),
             selectedFamille: controller.selectedFamille.value,
             onSelectFamille: controller.selectFamille,
           ),
@@ -188,9 +167,9 @@ class HomePage extends GetView<HomeController> {
 
         const SizedBox(height: 10),
 
-        Obx(
-          () => ProductGrid(
-            products: controller.products,
+        Obx(() {
+          return ProductGrid(
+            products: controller.products.toList(),
             isLoadingProducts: controller.isLoadingProducts.value,
             isLoadingMore: controller.isLoadingMore.value,
             hasReachedEnd: controller.hasReachedEnd.value,
@@ -201,8 +180,8 @@ class HomePage extends GetView<HomeController> {
 
               controller.goToProductDetails(controller.products[index]);
             },
-          ),
-        ),
+          );
+        }),
       ],
     );
   }

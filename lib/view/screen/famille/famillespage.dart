@@ -15,84 +15,85 @@ class FamillesPage extends GetView<FamillesController> {
     return Scaffold(
       backgroundColor: AppColor.background,
       body: SafeArea(
-        child: GetBuilder<FamillesController>(
-          init: FamillesController(),
-          builder: (controller) {
-            return ListView(
-              children: [
-                // ------------------------------------------------------
-                // Top bar
-                // ------------------------------------------------------
-                TopBar(logoUrl: controller.logoUrl, cartCount: 0),
+        child: RefreshIndicator(
+          color: AppColor.primaryColor,
+          onRefresh: controller.fetch,
+          child: ListView(
+            children: [
+              // ------------------------------------------------------
+              // Top bar
+              // ------------------------------------------------------
+              Obx(() => TopBar(logoUrl: controller.logoUrl.value, cartCount: 0)),
 
-                // ------------------------------------------------------
-                // Search
-                // ------------------------------------------------------
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: SizedBox(
-                    height: 50,
-                    child: TextField(
-                      controller: controller.searchController,
-                      cursorColor: AppColor.primaryColor,
-                      decoration: InputDecoration(
-                        fillColor: AppColor.background,
-                        filled: true,
-
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: BorderSide(color: AppColor.primaryColor),
-                        ),
-
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: BorderSide(color: AppColor.primaryColor),
-                        ),
-
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: BorderSide(color: AppColor.primaryColor),
-                        ),
-
-                        hintText: 'serch_famille'.tr,
-                        hintStyle: TextStyle(color: AppColor.grey),
-
-                        prefixIcon: Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: SvgPicture.asset(AppSvg.search, colorFilter: ColorFilter.mode(AppColor.primaryColor, BlendMode.srcIn)),
-                        ),
-
-                        suffixIcon: IconButton(
-                          onPressed: () {
-                            controller.searchController.clear();
-                            controller.searchProducts('');
-                          },
-                          icon: Icon(Icons.close, color: AppColor.primaryColor),
+              // ------------------------------------------------------
+              // Search
+              // ------------------------------------------------------
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: SizedBox(
+                  height: 50,
+                  child: TextField(
+                    controller: controller.searchController,
+                    cursorColor: AppColor.primaryColor,
+                    decoration: InputDecoration(
+                      fillColor: AppColor.background,
+                      filled: true,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide(color: AppColor.primaryColor),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide(color: AppColor.primaryColor),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide(color: AppColor.primaryColor),
+                      ),
+                      hintText: 'serch_famille'.tr,
+                      hintStyle: TextStyle(color: AppColor.grey),
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: SvgPicture.asset(
+                          AppSvg.search,
+                          colorFilter: ColorFilter.mode(AppColor.primaryColor, BlendMode.srcIn),
                         ),
                       ),
-
-                      onTapOutside: (_) {
-                        FocusScope.of(context).unfocus();
-                      },
-
-                      onChanged: controller.searchProducts,
-
-                      style: TextStyle(color: AppColor.primaryColor, fontWeight: FontWeight.w600, fontSize: 16, letterSpacing: 0.2),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          controller.searchController.clear();
+                          controller.searchProducts('');
+                        },
+                        icon: Icon(Icons.close, color: AppColor.primaryColor),
+                      ),
+                    ),
+                    onTapOutside: (_) {
+                      FocusScope.of(context).unfocus();
+                    },
+                    onChanged: controller.searchProducts,
+                    style: TextStyle(
+                      color: AppColor.primaryColor,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      letterSpacing: 0.2,
                     ),
                   ),
                 ),
+              ),
 
-                const SizedBox(height: 10),
+              const SizedBox(height: 10),
 
-                // ------------------------------------------------------
-                // Families
-                // ------------------------------------------------------
-                const Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: FamillesGrid()),
+              // ------------------------------------------------------
+              // Families
+              // ------------------------------------------------------
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: FamillesGrid(),
+              ),
 
-                const SizedBox(height: 20),
-              ],
-            );
-          },
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );

@@ -1,37 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:softel/controller/auth/login_controller.dart';
 import 'package:softel/core/class/crud.dart';
 import 'package:softel/core/constant/routesstr.dart';
 import 'package:softel/core/services/services.dart';
-// import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:softel/linkapi.dart';
 import 'package:softel/view/widget/dialog.dart';
 
 class SettingsController extends GetxController {
-  MyServices myServices = Get.find();
-  Crud crud = Crud();
-  Dialogfun dialogfun = Dialogfun();
-  String nom = '';
-  String photoUrl = '';
-  String companyNom = '';
-  String facebook = '';
-  String instagram = '';
-  String tiktok = '';
-  String whatsapp = '';
+  final MyServices myServices = Get.find<MyServices>();
+  final Crud crud = Crud();
+  final Dialogfun dialogfun = Dialogfun();
+
+  final RxString nom = ''.obs;
+  final RxString photoUrl = ''.obs;
+  final RxString companyNom = ''.obs;
+  final RxString facebook = ''.obs;
+  final RxString instagram = ''.obs;
+  final RxString tiktok = ''.obs;
+  final RxString whatsapp = ''.obs;
   final GoogleSignIn signIn = GoogleSignIn();
 
   @override
   void onInit() {
-    nom = myServices.sharedPreferences.getString("name") ?? '';
-    photoUrl = myServices.sharedPreferences.getString("photoUrl") ?? '';
-    companyNom = myServices.sharedPreferences.getString("companynom") ?? '';
-    facebook = myServices.sharedPreferences.getString("facebook") ?? '';
-    instagram = myServices.sharedPreferences.getString("instagram") ?? '';
-    tiktok = myServices.sharedPreferences.getString("tiktok") ?? '';
-    whatsapp = myServices.sharedPreferences.getString("whatsapp") ?? '';
     super.onInit();
+    loadUserData();
+  }
+
+  void loadUserData() {
+    nom.value = myServices.sharedPreferences.getString("name") ?? '';
+    photoUrl.value = myServices.sharedPreferences.getString("photoUrl") ?? '';
+    companyNom.value = myServices.sharedPreferences.getString("companynom") ?? '';
+    facebook.value = myServices.sharedPreferences.getString("facebook") ?? '';
+    instagram.value = myServices.sharedPreferences.getString("instagram") ?? '';
+    tiktok.value = myServices.sharedPreferences.getString("tiktok") ?? '';
+    whatsapp.value = myServices.sharedPreferences.getString("whatsapp") ?? '';
   }
 
   Future<void> signOutGoogle() async {
@@ -62,7 +65,7 @@ class SettingsController extends GetxController {
               CircleAvatar(
                 radius: 32,
                 backgroundColor: Colors.red.withValues(alpha: 0.1),
-                child: Icon(Icons.logout, color: Colors.red, size: 36),
+                child: const Icon(Icons.logout, color: Colors.red, size: 36),
               ),
               const SizedBox(height: 18),
               Text(
@@ -92,8 +95,8 @@ class SettingsController extends GetxController {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                     ),
-                    icon: Icon(Icons.logout, color: Colors.white),
-                    label: Text(
+                    icon: const Icon(Icons.logout, color: Colors.white),
+                    label: const Text(
                       "Logout",
                       style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                     ),
@@ -124,7 +127,7 @@ class SettingsController extends GetxController {
               children: [
                 CircularProgressIndicator(color: Colors.red[600]),
                 const SizedBox(width: 18),
-                Text("Logging out...", style: TextStyle(fontSize: 16)),
+                const Text("Logging out...", style: TextStyle(fontSize: 16)),
               ],
             ),
           ),
@@ -146,7 +149,6 @@ class SettingsController extends GetxController {
       Navigator.of(context, rootNavigator: true).pop(); // Close loading dialog
       if (response.statusCode == 200) {
         dialogfun.showSnackSuccess("success".tr, "successfully_logged_out".tr);
-        Get.put(LoginController());
         Get.offAllNamed(AppRoute.login);
       } else {
         dialogfun.showSnackError("error".tr, "something_went_wrong".tr);

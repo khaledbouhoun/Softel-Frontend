@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import 'package:softel/core/class/crud.dart';
 import 'package:softel/core/constant/imageasset.dart';
 import 'package:softel/core/constant/routesstr.dart';
+import 'package:softel/core/services/cart_state_service.dart';
 import 'package:softel/core/services/services.dart';
 import 'package:softel/data/model/familles.dart';
 import 'package:softel/data/model/imagesbanner.dart';
 import 'package:softel/data/model/product.dart';
 import 'package:softel/linkapi.dart';
-import 'package:softel/view/screen/product/productdetails.dart';
 import 'package:softel/view/widget/dialog.dart';
 import 'package:softel/view/widget/home/category_selector.dart';
 
@@ -28,6 +27,7 @@ class HomeController extends GetxController {
   final MyServices _services = Get.find<MyServices>();
   final Crud _crud = Crud();
   final Dialogfun _dialog = Dialogfun();
+  CartStateService get _cartStateService => Get.find<CartStateService>();
 
   // ===========================================================================
   // Controllers
@@ -46,7 +46,7 @@ class HomeController extends GetxController {
   // Cart
   // ===========================================================================
 
-  final RxInt cartCount = 0.obs;
+  RxInt get cartCount => _cartStateService.cartCount;
 
   // ===========================================================================
   // Banners
@@ -99,6 +99,7 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
 
+    _buildFamilleItems();
     _initialize();
 
     scrollController.addListener(_onScroll);
@@ -122,11 +123,7 @@ class HomeController extends GetxController {
   Future<void> _initialize() async {
     _loadBranding();
 
-    await Future.wait([
-      fetchBanners(),
-      fetchFamilles(),
-      fetchCartCount(),
-    ]);
+    await Future.wait([fetchBanners(), fetchFamilles(), fetchCartCount()]);
 
     await fetchProducts(reset: true);
   }
@@ -231,10 +228,7 @@ class HomeController extends GetxController {
   void _buildFamilleItems() {
     final allFamille = Familles(famNo: _allCategoryId, famNom: 'all'.tr);
 
-    final items = [
-      FamilleItem(allFamille, AppSvg.widget2Filled),
-      ...familles.map((famille) => FamilleItem(famille, AppSvg.widget2)),
-    ];
+    final items = [FamilleItem(allFamille, AppSvg.widget2Filled), ...familles.map((famille) => FamilleItem(famille, AppSvg.widget2))];
     familleItems.assignAll(items);
 
     final selectedId = selectedFamille.value.famNo;
@@ -410,35 +404,34 @@ class HomeController extends GetxController {
   // Cart
   // ===========================================================================
 
-  Future<void> fetchCartCount() async {
-    try {
-      final response = await _crud.get(AppLink.cartCount);
-
-      if (response.statusCode != 200 || response.body is! Map) {
-        cartCount.value = 0;
-        return;
-      }
-
-      final value = response.body['cartCount'];
-
-      cartCount.value = value is int ? value : int.tryParse(value?.toString() ?? '') ?? 0;
-    } catch (e, stackTrace) {
-      _logError('fetchCartCount', e, stackTrace);
-      cartCount.value = 0;
-    }
-  }
+  Future<void> fetchCartCount() => _cartStateService.fetchCartCount();
 
   // ===========================================================================
   // Navigation
   // ===========================================================================
 
   Future<void> goToProductDetails(Product product) async {
-    final result = await Get.to<double?>(() => ProductDetails(), arguments: {'product': product, 'fromcart': false});
+    final result = await Get.toNamed(AppRoute.productdetails, arguments: {'product': product, 'fromcart': false});
 
-    if (result == null) return;
+    if (result == null) {
+      return;
+    }
 
-    product.artQte = result;
-    products.refresh();
+    final quantity = (result as num).toDouble();
+
+    final index = products.indexWhere((p) => p.artNo == product.artNo);
+
+    if (index != -1) {
+      products[index].artQte = quantity;
+      product.artQte = quantity;
+      products.refresh();
+    }
+
+    final searchIndex = searchResults.indexWhere((p) => p.artNo == product.artNo);
+    if (searchIndex != -1) {
+      searchResults[searchIndex].artQte = quantity;
+      searchResults.refresh();
+    }
 
     await fetchCartCount();
   }

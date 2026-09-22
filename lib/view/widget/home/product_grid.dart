@@ -112,6 +112,7 @@ class ProductGrid extends StatelessWidget {
 
 Widget productCard(Product p, {required void Function()? onTap}) {
   return GestureDetector(
+    key: ValueKey('product_${p.artNo}'),
     onTap: onTap,
     child: Container(
       decoration: BoxDecoration(
@@ -161,7 +162,7 @@ Widget productCard(Product p, {required void Function()? onTap}) {
                           const Icon(Icons.check_circle, color: Colors.white, size: 16),
                           const SizedBox(width: 4),
                           Text(
-                            '${p.artQte!.toInt()}',
+                            p.artQte.toString(),
                             style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
                           ),
                         ],
@@ -194,12 +195,7 @@ Widget productCard(Product p, {required void Function()? onTap}) {
                       height: 45,
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(color: AppColor.primaryColor, borderRadius: BorderRadius.circular(14)),
-                      child: SvgPicture.asset(
-                        AppSvg.cart,
-                        width: 10,
-                        height: 10,
-                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                      ),
+                      child: SvgPicture.asset(AppSvg.cart, width: 10, height: 10, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
                     ),
                   ],
                 ),

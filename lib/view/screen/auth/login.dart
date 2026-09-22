@@ -2,24 +2,21 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:get/get_utils/get_utils.dart';
-import 'package:get/state_manager.dart';
 import 'package:softel/controller/auth/login_controller.dart';
 import 'package:softel/core/constant/color.dart';
 import 'package:softel/core/constant/imageasset.dart';
 import 'package:softel/view/widget/loadingwidget.dart';
 
-class Login extends StatelessWidget {
+class Login extends GetView<LoginController> {
   const Login({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
-      body: GetBuilder<LoginController>(
-        init: LoginController(),
-        builder: (controller) {
-          if (controller.isLoading) {
+      body: Obx(
+        () {
+          if (controller.isLoading.value) {
             return const Center(child: Loadingwidget());
           }
 
@@ -435,14 +432,12 @@ class _AnimatedAmbientBlob extends StatefulWidget {
   final double size;
   final double opacity;
   final Duration duration;
-  final Duration delay;
 
   const _AnimatedAmbientBlob({
     required this.color,
     required this.size,
     required this.opacity,
     required this.duration,
-    this.delay = Duration.zero,
   });
 
   @override
@@ -456,12 +451,6 @@ class _AnimatedAmbientBlobState extends State<_AnimatedAmbientBlob> with TickerP
   void initState() {
     super.initState();
     _controller = AnimationController(vsync: this, duration: widget.duration)..repeat(reverse: true);
-
-    Future.delayed(widget.delay, () {
-      if (mounted) {
-        _controller.forward();
-      }
-    });
   }
 
   @override
