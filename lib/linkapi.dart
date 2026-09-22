@@ -1,7 +1,5 @@
 class AppLink {
   static const String tset = "$server/test";
-  // static const server = "http://10.104.195.220:8000/api";
-  // static const domine = "http://10.0.2.2:8000";
   static const domine = "https://b2b.softel.dz";
 
   // Images URLs

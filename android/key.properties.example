@@ -1,0 +1,6 @@
+# Keystore signing configuration template
+# Copy this file to key.properties and replace with your local keystore information
+storePassword=YOUR_STORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=YOUR_KEY_ALIAS
+storeFile=../app/mykey.jks

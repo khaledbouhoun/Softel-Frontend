@@ -1,10 +1,11 @@
 # ============================================
 # Flutter Project .gitignore
-# Safe for public GitHub sharing
-# Keeps only important source files
+# Safe for public GitHub repository
 # ============================================
 
-# Flutter & Dart
+# --------------------------------------------
+# Dart & Flutter
+# --------------------------------------------
 .dart_tool/
 .packages
 .pub-cache/
@@ -12,33 +13,106 @@
 .flutter-plugins
 .flutter-plugins-dependencies
 
-# Build outputs
-/build/
+# --------------------------------------------
+# Build Outputs
+# --------------------------------------------
+build/
+**/build/
+android/build/
+android/app/build/
+android/.gradle/
 **/android/app/debug/
 **/android/app/profile/
 **/android/app/release/
-**/ios/Flutter/.last_build_id
-**/ios/Flutter/App.framework
-**/ios/Flutter/Flutter.framework
-**/ios/Flutter/ephemeral/
-**/ios/Pods/
-**/ios/Podfile.lock
 
-# Signing & secrets
+# iOS / macOS build artifacts
+ios/Flutter/ephemeral/
+ios/Flutter/.last_build_id
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Pods/
+# NOTE: ios/Podfile.lock is intentionally tracked for reproducible iOS builds
+
+macos/Flutter/ephemeral/
+macos/Flutter/Generated.xcconfig
+macos/Flutter/flutter_export_environment.sh
+macos/Pods/
+
+# Windows / Linux build artifacts
+windows/flutter/ephemeral/
+linux/flutter/ephemeral/
+
+# Web build artifacts
+web/.dart_tool/
+web/build/
+
+# --------------------------------------------
+# Signing & Keystores (DO NOT COMMIT)
+# --------------------------------------------
 *.jks
 *.keystore
 key.properties
+**/key.properties
+!android/key.properties.example
+
+# --------------------------------------------
+# Local Machine Configurations
+# --------------------------------------------
+local.properties
+**/local.properties
+android/local.properties
+
+# --------------------------------------------
+# Environment Configurations & Secrets
+# --------------------------------------------
 .env
 .env.*
-google-services.json
-GoogleService-Info.plist
+!.env.example
+!.env.template
 
-# Logs & temporary files
+# --------------------------------------------
+# Firebase Configurations & Generated Options
+# --------------------------------------------
+google-services.json
+**/google-services.json
+!android/app/google-services.example.json
+
+GoogleService-Info.plist
+**/GoogleService-Info.plist
+!ios/Runner/GoogleService-Info.example.plist
+
+lib/firebase_options.dart
+**/firebase_options.dart
+!lib/firebase_options.example.dart
+
+# --------------------------------------------
+# Compressed Archives & Backups
+# --------------------------------------------
+*.zip
+*.tar
+*.gz
+*.tar.gz
+*.rar
+*.7z
+*.bak
+*.backup
+*.old
+*.orig
+
+# --------------------------------------------
+# Logs & Temporary Files
+# --------------------------------------------
 *.log
 *.tmp
 *.swp
+*.pid
+*~
 
-# IDE / Editor settings
+# --------------------------------------------
+# IDE & Editor Files
+# --------------------------------------------
 .idea/
 .vscode/
 *.iml
@@ -47,23 +121,23 @@ GoogleService-Info.plist
 .DS_Store
 Thumbs.db
 
-# Coverage & analysis
+# --------------------------------------------
+# Coverage, Analysis & Symbols
+# --------------------------------------------
 coverage/
 analyzer-output.txt
+app.*.symbols
+app.*.map.json
 
-# Web build
-web/.dart_tool/
-web/build/
-
-# Node or JS tools (if used)
+# --------------------------------------------
+# Node / Tooling dependencies (if any)
+# --------------------------------------------
 node_modules/
 npm-debug.log
 yarn-error.log
 
-# Symbolication & obfuscation
-app.*.symbols
-app.*.map.json
-
-# Miscellaneous build folders
+# --------------------------------------------
+# Migration tooling
+# --------------------------------------------
 .migrate/
 .migrate_working_dir/
