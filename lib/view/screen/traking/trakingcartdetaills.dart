@@ -5,7 +5,7 @@ import 'package:softel/core/constant/color.dart';
 import 'package:softel/view/widget/backwidget.dart';
 import 'package:softel/view/widget/cart/custom_bottom_navgationbar_cart.dart';
 import 'package:softel/view/widget/cart/customitemscartlist.dart';
-import 'package:softel/view/widget/loadingwidget.dart';
+import 'package:softel/view/widget/loading/cart_item_shimmer.dart';
 
 class Trakingcartdetaills extends GetView<TrakingcartdetaillsController> {
   const Trakingcartdetaills({super.key});
@@ -37,7 +37,7 @@ class Trakingcartdetaills extends GetView<TrakingcartdetaillsController> {
           child: Obx(
             () {
               if (controller.isloading.value && controller.data.isEmpty) {
-                return Center(child: Loadingwidget(width: Get.width / 2));
+                return const CartItemShimmer(itemCount: 4);
               }
               if (controller.data.isEmpty) {
                 return ListView(

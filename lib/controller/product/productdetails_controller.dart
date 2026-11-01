@@ -261,9 +261,9 @@ class ProductDetailsController extends GetxController {
     dialogfun.showSnackError('error'.tr, 'something_went_wrong'.tr);
   }
 
-  void _showSuccessMessage(String message) {
-    dialogfun.showSnackSuccess('success'.tr, message);
-  }
+  // void _showSuccessMessage(String message) {
+  //   dialogfun.showSnackSuccess('success'.tr, message);
+  // }
 
   // ---------------------------------------------------------------------------
   // Unit Type

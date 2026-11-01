@@ -6,7 +6,7 @@ class MyTranslation extends Translations {
     "fr": {
       "error": "Erreur",
       "success": "Succès",
-
+      "no_companies_found": "Aucune entreprise trouvée",
       "successfully_removed": "Supprimé avec succès",
 
       "something_went_wrong": "Quelque chose s'est mal passé",
@@ -134,7 +134,7 @@ class MyTranslation extends Translations {
 
     "ar": {
       "error": "خطأ",
-
+      "no_companies_found": "لا توجد شركات متاحة",
       "success": "نجاح",
       "successfully_removed": "تمت الازالة بنجاح",
       "something_went_wrong": "هناك خطأ ما",
@@ -263,7 +263,7 @@ class MyTranslation extends Translations {
       "error": "Error",
       "success": "Success",
       "successfully_removed": "Successfully removed",
-
+      "no_companies_found": "No companies found",
       "something_went_wrong": "Something went wrong",
       "language": "Select your preferred language",
       "select_company": "Select a company",

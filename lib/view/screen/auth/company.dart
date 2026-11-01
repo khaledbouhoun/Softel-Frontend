@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:softel/controller/auth/company_controller.dart';
 import 'package:softel/view/widget/auth/companywidget.dart';
-import 'package:softel/view/widget/loadingwidget.dart';
+import 'package:softel/view/widget/loading/company_card_shimmer.dart';
 
 class CompanyPage extends GetView<CompanyController> {
   const CompanyPage({super.key});
@@ -14,11 +14,7 @@ class CompanyPage extends GetView<CompanyController> {
       appBar: AppBar(
         title: Text(
           'select_company'.tr,
-          style: const TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-            color: Color(0xFF1A1A1A),
-          ),
+          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18, color: Color(0xFF1A1A1A)),
         ),
         centerTitle: true,
         backgroundColor: const Color(0xFFF5F5F5),
@@ -28,38 +24,36 @@ class CompanyPage extends GetView<CompanyController> {
       ),
       body: RefreshIndicator(
         onRefresh: controller.fetchCompanies,
-        child: Obx(
-          () {
-            if (controller.isLoading.value && controller.companies.isEmpty) {
-              return Center(child: Loadingwidget(width: Get.width / 2));
-            }
+        child: Obx(() {
+          if (controller.isLoading.value) {
+            return const CompanyCardShimmer(itemCount: 3);
+          }
 
-            if (controller.companies.isEmpty) {
-              return ListView(
-                children: [
-                  SizedBox(height: Get.height * 0.3),
-                  Center(
-                    child: Text('no_companies_found'.tr, style: const TextStyle(fontSize: 16, color: Colors.grey)),
-                  ),
-                ],
-              );
-            }
-
-            return ListView.builder(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-              itemCount: controller.companies.length,
-              itemBuilder: (context, index) {
-                return CompanyWidget(
-                  company: controller.companies[index],
-                  ontap: () async {
-                    await controller.selectCompany(controller.companies[index]);
-                  },
-                );
-              },
+          if (controller.companies.isEmpty) {
+            return ListView(
+              children: [
+                SizedBox(height: Get.height * 0.3),
+                Center(
+                  child: Text('no_companies_found'.tr, style: const TextStyle(fontSize: 16, color: Colors.grey)),
+                ),
+              ],
             );
-          },
-        ),
+          }
+
+          return ListView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+            itemCount: controller.companies.length,
+            itemBuilder: (context, index) {
+              return CompanyWidget(
+                company: controller.companies[index],
+                ontap: () async {
+                  await controller.selectCompany(controller.companies[index]);
+                },
+              );
+            },
+          );
+        }),
       ),
     );
   }

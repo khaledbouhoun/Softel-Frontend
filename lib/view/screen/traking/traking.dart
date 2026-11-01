@@ -6,7 +6,7 @@ import 'package:softel/view/widget/backwidget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:softel/view/widget/loadingwidget.dart';
+import 'package:softel/view/widget/loading/order_card_shimmer.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 
 class Traking extends GetView<TrakingController> {
@@ -32,8 +32,8 @@ class Traking extends GetView<TrakingController> {
         onRefresh: controller.fetch,
         child: Obx(
           () {
-          if (controller.isloading.value) {
-            return Center(child: Loadingwidget(width: Get.width / 2));
+          if (controller.isloading.value && controller.commands.isEmpty) {
+            return const OrderCardShimmer(itemCount: 4);
           } else {
             if (controller.commands.isEmpty) {
               return Center(

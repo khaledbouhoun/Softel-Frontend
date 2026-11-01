@@ -1,11 +1,14 @@
-import 'package:softel/controller/home/homescreen_controller.dart';
-import 'package:softel/core/constant/color.dart';
-import 'package:softel/core/constant/imageasset.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-
+import 'package:softel/controller/home/homescreen_controller.dart';
+import 'package:softel/core/constant/color.dart';
+import 'package:softel/core/constant/imageasset.dart';
+import 'package:softel/view/screen/famille/famillespage.dart';
+import 'package:softel/view/screen/home/home.dart';
+import 'package:softel/view/screen/settings/settings.dart';
+import 'package:softel/view/screen/traking/traking.dart';
 
 class HomeScreen extends GetView<HomeScreenController> {
   const HomeScreen({super.key});
@@ -17,7 +20,12 @@ class HomeScreen extends GetView<HomeScreenController> {
       body: Obx(
         () => IndexedStack(
           index: controller.initialTab.value,
-          children: controller.listPage,
+          children: [
+            controller.loadedTabs.contains(0) ? const HomePage() : const SizedBox.shrink(),
+            controller.loadedTabs.contains(1) ? const FamillesPage() : const SizedBox.shrink(),
+            controller.loadedTabs.contains(2) ? const Traking() : const SizedBox.shrink(),
+            controller.loadedTabs.contains(3) ? const Settings() : const SizedBox.shrink(),
+          ],
         ),
       ),
       bottomNavigationBar: Container(

@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:softel/controller/auth/login_controller.dart';
 import 'package:softel/core/constant/color.dart';
 import 'package:softel/core/constant/imageasset.dart';
-import 'package:softel/view/widget/loadingwidget.dart';
 
 class Login extends GetView<LoginController> {
   const Login({super.key});
@@ -16,10 +15,6 @@ class Login extends GetView<LoginController> {
       backgroundColor: const Color(0xFFF7F8FC),
       body: Obx(
         () {
-          if (controller.isLoading.value) {
-            return const Center(child: Loadingwidget());
-          }
-
           final Color primary = controller.company?.clsClr1 ?? AppColor.primaryColor;
 
           return Stack(
@@ -55,7 +50,11 @@ class Login extends GetView<LoginController> {
                       const Spacer(flex: 4),
 
                       /// 🔹 CTA
-                      _GoogleButton(primary: primary, onPressed: controller.loginWithGoogle),
+                      _GoogleButton(
+                        primary: primary,
+                        isLoading: controller.isLoading.value,
+                        onPressed: controller.loginWithGoogle,
+                      ),
 
                       const Spacer(flex: 1),
 
@@ -77,9 +76,14 @@ class Login extends GetView<LoginController> {
 
 class _GoogleButton extends StatefulWidget {
   final Color primary;
+  final bool isLoading;
   final VoidCallback onPressed;
 
-  const _GoogleButton({required this.primary, required this.onPressed});
+  const _GoogleButton({
+    required this.primary,
+    this.isLoading = false,
+    required this.onPressed,
+  });
 
   @override
   State<_GoogleButton> createState() => _GoogleButtonState();
@@ -91,12 +95,14 @@ class _GoogleButtonState extends State<_GoogleButton> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapUp: (_) {
-        setState(() => _pressed = false);
-        widget.onPressed();
-      },
-      onTapCancel: () => setState(() => _pressed = false),
+      onTapDown: widget.isLoading ? null : (_) => setState(() => _pressed = true),
+      onTapUp: widget.isLoading
+          ? null
+          : (_) {
+              setState(() => _pressed = false);
+              widget.onPressed();
+            },
+      onTapCancel: widget.isLoading ? null : () => setState(() => _pressed = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 120),
         height: 56,
@@ -117,25 +123,36 @@ class _GoogleButtonState extends State<_GoogleButton> {
             ),
           ],
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            /// 🌈 Google logo (always visible)
-            Image.asset(AppImageAsset.google, height: 22),
+        child: widget.isLoading
+            ? Center(
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    valueColor: AlwaysStoppedAnimation<Color>(widget.primary),
+                  ),
+                ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  /// 🌈 Google logo (always visible)
+                  Image.asset(AppImageAsset.google, height: 22),
 
-            const SizedBox(width: 12),
+                  const SizedBox(width: 12),
 
-            /// 🧠 Smart text color
-            const Text(
-              "Continue with Google",
-              style: TextStyle(
-                color: Color(0xFF0F172A), // dark, readable
-                fontWeight: FontWeight.w600,
-                fontSize: 15,
+                  /// 🧠 Smart text color
+                  const Text(
+                    "Continue with Google",
+                    style: TextStyle(
+                      color: Color(0xFF0F172A), // dark, readable
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }

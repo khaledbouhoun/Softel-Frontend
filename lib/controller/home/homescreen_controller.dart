@@ -1,34 +1,27 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:softel/view/screen/famille/famillespage.dart';
-import 'package:softel/view/screen/home/home.dart';
-import 'package:softel/view/screen/settings/settings.dart';
-import 'package:softel/view/screen/traking/traking.dart';
 
 /// Clean, decoupled HomeScreenController managing bottom navigation tab state.
 class HomeScreenController extends GetxController {
   /// Reactive tab index
   final RxInt initialTab = 0.obs;
 
-  /// Pages for each tab
-  final List<Widget> listPage = const [
-    HomePage(),
-    FamillesPage(),
-    Traking(),
-    Settings(),
-  ];
+  /// Set of tabs that have been visited/loaded so far
+  final RxSet<int> loadedTabs = <int>{0}.obs;
 
   @override
   void onInit() {
     super.onInit();
     final args = Get.arguments;
     if (args is Map && args['initialTab'] is int) {
-      initialTab.value = args['initialTab'] as int;
+      final tab = args['initialTab'] as int;
+      initialTab.value = tab;
+      loadedTabs.add(tab);
     }
   }
 
-  /// Change active tab index cleanly
+  /// Change active tab index cleanly and mark it as loaded
   void changeTab(int index) {
+    loadedTabs.add(index);
     initialTab.value = index;
   }
 }

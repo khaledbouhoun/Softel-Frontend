@@ -34,7 +34,7 @@ class CompanyWidget extends StatelessWidget {
                     child: CachedNetworkImage(
                       imageUrl: company.clsImg ?? '',
                       fit: BoxFit.contain, // ✅ FIXED
-                      placeholder: (context, url) => CircularProgressIndicator(color: company.clsClr1),
+                      placeholder: (context, url) => const SizedBox.shrink(),
                       errorWidget: (context, url, error) => Text(
                         company.clsNom ?? '',
                         textAlign: TextAlign.center,

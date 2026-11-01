@@ -1,8 +1,9 @@
 import 'dart:convert';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
-import 'package:softel/core/functions/checkinternet.dart';
 import 'package:http/http.dart' as http;
+import 'package:softel/core/functions/checkinternet.dart';
 import 'package:softel/core/services/services.dart';
 
 class Crud {
@@ -46,6 +47,7 @@ class Crud {
       try {
         var response = await http.get(Uri.parse(linkurl), headers: {'Accept': 'application/json', 'X-Auth-Token': token ?? ''});
 
+        print("[GET]Token: $token");
         print("[GET]Request URL: $linkurl");
         print("[GET]Response: ${response.body}");
 

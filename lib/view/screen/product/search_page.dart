@@ -5,7 +5,7 @@ import 'package:softel/core/constant/color.dart';
 import 'package:softel/core/constant/routesstr.dart';
 import 'package:softel/view/widget/backwidget.dart';
 import 'package:softel/view/widget/home/product_grid.dart';
-import 'package:softel/view/widget/loadingwidget.dart';
+import 'package:softel/view/widget/loading/product_grid_shimmer.dart';
 
 class SearchPage extends GetView<SearchsController> {
   const SearchPage({super.key});
@@ -99,18 +99,9 @@ class SearchPage extends GetView<SearchsController> {
 
   /// Build loading state
   Widget _buildLoadingState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Loadingwidget(width: 100),
-          const SizedBox(height: 16),
-          Text(
-            'searching_products'.tr,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColor.grey),
-          ),
-        ],
-      ),
+    return const ProductGridShimmer(
+      shrinkWrap: false,
+      physics: AlwaysScrollableScrollPhysics(),
     );
   }
 
@@ -243,6 +234,8 @@ class SearchPage extends GetView<SearchsController> {
               physics: const AlwaysScrollableScrollPhysics(),
               products: controller.filteredProducts.toList(),
               isLoadingProducts: controller.isLoading.value,
+              isLoadingMore: controller.isLoadingMore.value,
+              hasReachedEnd: !controller.hasMoreResults.value,
               scrollercontroller: controller.scrollController,
               enableScroll: true,
               onTap: (index) {
@@ -258,8 +251,6 @@ class SearchPage extends GetView<SearchsController> {
               },
             ),
           ),
-          // Loading more indicator
-          if (controller.isLoadingMore.value) const Padding(padding: EdgeInsets.all(16), child: Loadingwidget(width: 50)),
         ],
       ),
     );

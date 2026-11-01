@@ -5,7 +5,7 @@ import 'package:softel/view/widget/backwidget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:softel/view/widget/cart/customitemscartlist.dart';
-import 'package:softel/view/widget/loadingwidget.dart';
+import 'package:softel/view/widget/loading/cart_item_shimmer.dart';
 
 class Cart extends GetView<CartController> {
   const Cart({super.key});
@@ -37,7 +37,7 @@ class Cart extends GetView<CartController> {
           child: Obx(
             () {
               if (controller.isloading.value && controller.data.isEmpty) {
-                return Center(child: Loadingwidget(width: Get.width / 2));
+                return const CartItemShimmer(itemCount: 4);
               }
               if (controller.data.isEmpty) {
                 return ListView(

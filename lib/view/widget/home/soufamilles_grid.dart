@@ -4,13 +4,19 @@ import 'package:get/get.dart';
 import 'package:softel/controller/familles/soufamillescontroller.dart';
 import 'package:softel/core/constant/color.dart';
 
+import 'package:softel/view/widget/loading/familles_grid_shimmer.dart';
+
 class SoufamillesGrid extends GetView<Soufamillescontroller> {
   const SoufamillesGrid({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => GridView.builder(
+    return Obx(() {
+      if (controller.isLoading.value && controller.soufilteredfamilles.isEmpty) {
+        return const FamillesGridShimmer();
+      }
+
+      return GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -85,8 +91,8 @@ class SoufamillesGrid extends GetView<Soufamillescontroller> {
             ),
           );
         },
-      ),
-    );
+      );
+    });
   }
 }
 

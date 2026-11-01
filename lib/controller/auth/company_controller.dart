@@ -41,4 +41,3 @@ class CompanyController extends GetxController {
     await Get.toNamed(AppRoute.login, arguments: {'company': company});
   }
 }
-

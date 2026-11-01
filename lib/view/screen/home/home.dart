@@ -9,6 +9,8 @@ import 'package:softel/view/widget/home/category_selector.dart';
 import 'package:softel/view/widget/home/customcardhome.dart';
 import 'package:softel/view/widget/home/product_grid.dart';
 import 'package:softel/view/widget/home/top_bar.dart';
+import 'package:softel/view/widget/loading/category_shimmer.dart';
+import 'package:softel/view/widget/loading/product_grid_shimmer.dart';
 
 class HomePage extends GetView<HomeController> {
   const HomePage({super.key});
@@ -143,11 +145,16 @@ class HomePage extends GetView<HomeController> {
         _buildSectionTitle('familles'.tr),
 
         Obx(
-          () => FamilleSelector(
-            famillesItems: controller.familleItems.toList(),
-            selectedFamille: controller.selectedFamille.value,
-            onSelectFamille: controller.selectFamille,
-          ),
+          () {
+            if (controller.isLoadingFamilies.value && controller.familleItems.isEmpty) {
+              return const CategoryShimmer();
+            }
+            return FamilleSelector(
+              famillesItems: controller.familleItems.toList(),
+              selectedFamille: controller.selectedFamille.value,
+              onSelectFamille: controller.selectFamille,
+            );
+          },
         ),
 
         const SizedBox(height: 12),
@@ -168,6 +175,9 @@ class HomePage extends GetView<HomeController> {
         const SizedBox(height: 10),
 
         Obx(() {
+          if (controller.isLoadingProducts.value && controller.products.isEmpty) {
+            return const ProductGridShimmer();
+          }
           return ProductGrid(
             products: controller.products.toList(),
             isLoadingProducts: controller.isLoadingProducts.value,

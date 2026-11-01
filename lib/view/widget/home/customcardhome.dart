@@ -10,6 +10,8 @@ import 'package:softel/data/model/familles.dart';
 import 'package:softel/data/model/imagesbanner.dart';
 import 'package:softel/data/model/soufamilles.dart';
 
+import 'package:softel/view/widget/loading/banner_shimmer.dart';
+
 class CustomCardHome extends StatelessWidget {
   final List<ImagesBanner> images;
   final bool isLoading;
@@ -23,16 +25,7 @@ class CustomCardHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return SizedBox(
-        height: Get.width * 0.4,
-        child: const Center(
-          child: SizedBox(
-            width: 24,
-            height: 24,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
-        ),
-      );
+      return const BannerShimmer();
     }
 
     if (images.isEmpty) {
